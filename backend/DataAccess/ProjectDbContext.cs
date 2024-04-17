@@ -5,6 +5,7 @@ namespace backend.DataAccess
 {
     public class ProjectDbContext : DbContext
     {
+        // projectDb constructor
         public ProjectDbContext(DbContextOptions<ProjectDbContext> options)
             : base(options)
         {
