@@ -2,6 +2,7 @@
 using backend.Models;
 using backend.DataAccess;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace backend.Controllers
@@ -11,25 +12,26 @@ namespace backend.Controllers
 
     public class UsersController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        
+        private readonly ProjectDbContext _dbContext;
 
-        public UserController(ApplicationDbContext context)
+        public UsersController(ProjectDbContext dbContext)
         {
-            _context = context;
+            _dbContext = dbContext;
         }
 
         // GET: api/User
         [HttpGet]
         public ActionResult<IEnumerable<User>> GetUsers()
         {
-            return _context.Users.ToList();
+            return _dbContext.Users.ToList();
         }
 
         // GET: api/User/5
         [HttpGet("{id}")]
         public ActionResult<User> GetUser(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = _dbContext.Users.Find(id);
 
             if (user == null)
             {
@@ -43,23 +45,23 @@ namespace backend.Controllers
         [HttpPost]
         public ActionResult<User> PostUser(User user)
         {
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            _dbContext.Users.Add(user);
+            _dbContext.SaveChanges();
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            return CreatedAtAction("GetUser", new { id = user.UserID }, user);
         }
 
         // PUT: api/User/5
         [HttpPut("{id}")]
         public IActionResult PutUser(int id, User user)
         {
-            if (id != user.Id)
+            if (id != user.UserID)
             {
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
-            _context.SaveChanges();
+            _dbContext.Entry(user).State = EntityState.Modified;
+            _dbContext.SaveChanges();
 
             return NoContent();
         }
@@ -68,16 +70,17 @@ namespace backend.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteUser(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = _dbContext.Users.Find(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
-            _context.SaveChanges();
+            _dbContext.Users.Remove(user);
+            _dbContext.SaveChanges();
 
             return NoContent();
         }
+        
     }
 }

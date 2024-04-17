@@ -1,13 +1,19 @@
 
+using backend.DataAccess;
+using Microsoft.EntityFrameworkCore;
+
 namespace backend
 {
     public class Program
     {
+       
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddDbContext<ProjectDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("EventCS")));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -32,5 +38,6 @@ namespace backend
 
             app.Run();
         }
+
     }
 }
