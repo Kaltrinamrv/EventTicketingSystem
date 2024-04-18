@@ -8,5 +8,7 @@ namespace backend.Models
         public int UserID { get; set; }
 
         public string PaymentInformation { get; set; }
+
+        public int AccountID { get; set; }
     }
 }
