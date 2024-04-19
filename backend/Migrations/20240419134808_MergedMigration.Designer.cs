@@ -12,8 +12,8 @@ using backend.DataAccess;
 namespace backend.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20240419125303_Second")]
-    partial class Second
+    [Migration("20240419134808_MergedMigration")]
+    partial class MergedMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
