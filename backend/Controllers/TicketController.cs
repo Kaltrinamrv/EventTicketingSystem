@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using backend.Models;
+using backend.Entities;
 using backend.DataAccess;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
