@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using backend.Entities;
-    
+
 
 namespace backend.DataAccess
 {
@@ -19,7 +19,54 @@ namespace backend.DataAccess
         public DbSet<Ticket> Tickets { get; set; }
 
 
-       
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+            modelBuilder.Entity<Ticket>()
+       .HasOne(t => t.User)
+       .WithMany(u => u.Tickets)
+       .HasForeignKey(t => t.UserID);
+
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Event)
+                .WithMany(e => e.Tickets)
+                .HasForeignKey(t => t.EventID);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserID);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Event)
+                .WithMany(e => e.Orders)
+                .HasForeignKey(o => o.EventID);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Ticket) // Add this line
+                .WithMany()            // Add this line
+                .HasForeignKey(o => o.TicketID) // Add this line
+                .OnDelete(DeleteBehavior.Restrict); // Add this line
+
+            modelBuilder.Entity<Account>()
+                .HasOne(a => a.User)
+                .WithMany(u => u.Accounts)
+                .HasForeignKey(a => a.UserID);
+
+            base.OnModelCreating(modelBuilder);
+        }
+        
+        
+
+
+
+
 
     }
 }

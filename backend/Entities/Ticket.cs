@@ -1,29 +1,39 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Entities
 {
     public class Ticket
     {
-        [Key]
+        
         public int TicketID { get; set; }
 
-        [Required]
+       
         public int EventID { get; set; }
 
-        [Required]
-        [MaxLength(50)]
+        public Event Event { get; set; }
+
+
+      
+        public int UserID { get; set; }
+
+
+        public User User { get; set; }
+
+
+     
         public string TicketType { get; set; }
 
-        [Required]
+  
         public decimal Price { get; set; }
 
-        [Required]
+      
         public int QuantityAvailable { get; set; }
 
-        [Required]
+       
         public DateTime SaleStartDate { get; set; }
 
-        [Required]
+        
         public DateTime SaleEndDate { get; set; }
     }
 }

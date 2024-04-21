@@ -4,25 +4,40 @@ namespace backend.Entities
 {
     public class Order
     {
-        [Key]
+        
         public int OrderID { get; set; }
+        public User User { get; set; }
 
-        [Required]
+
+
+       
         public int UserID { get; set; }
 
-        [Required]
+
+        
         public int EventID { get; set; }
 
-        [Required]
+        public Event Event { get; set; }
+
+        
         public int TicketID { get; set; }
 
-        [Required]
+        public Ticket Ticket { get; set;}
+        
+
+
+        public int AccountID { get; set; }
+        public Account Account { get; set; }
+
+
         public int Quantity { get; set; }
 
-        [Required]
+        
         public decimal TotalPrice { get; set; }
 
-        [Required]
+      
         public DateTime OrderDate { get; set; }
+
+
     }
 }
