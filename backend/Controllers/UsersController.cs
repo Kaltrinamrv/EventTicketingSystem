@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 
+
 namespace backend.Controllers
 {
     [Route("api/[controller]")]
@@ -19,6 +20,23 @@ namespace backend.Controllers
         {
             _dbContext = dbContext;
         }
+
+        [HttpPost("login")]
+        public object Login([FromBody] UserLoginRequest request)
+        {
+            var user = _dbContext.Users
+                .Where(user => user.Email == request.Email)
+                .Where(user => user.Password == request.Password)
+                .FirstOrDefault();
+
+            if (user == null)
+            {
+                return Unauthorized("Email or password did not match");
+            }
+            return Ok("token");
+        }
+
+
 
         // GET: api/User
         [HttpGet]
@@ -82,5 +100,10 @@ namespace backend.Controllers
             return NoContent();
         }
         
+    }
+    public class UserLoginRequest
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

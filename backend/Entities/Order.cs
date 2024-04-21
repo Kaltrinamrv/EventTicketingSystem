@@ -7,14 +7,9 @@ namespace backend.Entities
         
         public int OrderID { get; set; }
         public User User { get; set; }
-
-
-
-       
+     
         public int UserID { get; set; }
 
-
-        
         public int EventID { get; set; }
 
         public Event Event { get; set; }
@@ -24,8 +19,6 @@ namespace backend.Entities
 
         public Ticket Ticket { get; set;}
         
-
-
         public int AccountID { get; set; }
         public Account Account { get; set; }
 
