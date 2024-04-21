@@ -50,15 +50,9 @@ namespace backend.DataAccess
 
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Ticket) 
-<<<<<<< HEAD
-                .WithMany()          
-                .HasForeignKey(o => o.TicketID) 
-                .OnDelete(DeleteBehavior.Restrict);
-=======
                 .WithMany()            
                 .HasForeignKey(o => o.TicketID) 
                 .OnDelete(DeleteBehavior.Restrict); 
->>>>>>> da755d4df3763294e03b44a34baa70aca53772c2
 
             modelBuilder.Entity<Account>()
                 .HasOne(a => a.User)
