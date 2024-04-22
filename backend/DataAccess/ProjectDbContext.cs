@@ -14,7 +14,7 @@ namespace backend.DataAccess
 
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<Account> Accounts { get; set; }
+        public DbSet<Payment> Accounts { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
 
@@ -54,7 +54,7 @@ namespace backend.DataAccess
                 .HasForeignKey(o => o.TicketID) 
                 .OnDelete(DeleteBehavior.Restrict); 
 
-            modelBuilder.Entity<Account>()
+            modelBuilder.Entity<Payment>()
                 .HasOne(a => a.User)
                 .WithMany(u => u.Accounts)
                 .HasForeignKey(a => a.UserID);

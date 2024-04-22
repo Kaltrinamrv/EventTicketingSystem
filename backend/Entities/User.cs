@@ -31,6 +31,6 @@ namespace backend.Entities
         public ICollection<Ticket>? Tickets { get; set; }
         public ICollection<Order>? Orders { get; set; }
 
-        public ICollection<Account>? Accounts { get; set; }
+        public ICollection<Payment>? Accounts { get; set; }
     }
 }
