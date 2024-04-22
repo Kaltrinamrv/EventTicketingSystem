@@ -8,9 +8,8 @@ namespace backend.DataAccess
     {
         // ProjectDbContext constructor
         public ProjectDbContext(DbContextOptions<ProjectDbContext> options)
-            : base(options)
-        {
-        }
+            : base(options) { }
+        
 
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
