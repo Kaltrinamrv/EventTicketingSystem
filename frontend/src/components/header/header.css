@@ -1,0 +1,41 @@
+
+.header {
+    background-color: #000; 
+    color: #fff; 
+    padding: 20px; 
+    text-align: center; 
+}
+
+
+.logo {
+    font-size: 24px; 
+    font-weight: bold; 
+    text-decoration: none; 
+    color: #fff; 
+}
+
+
+.nav {
+    margin-top: 10px; 
+}
+
+    .nav ul {
+        list-style-type: none; 
+        padding: 0; 
+    }
+
+    .nav li {
+        display: inline;
+        margin-right: 20px;
+    }
+
+    .nav a {
+        color: #fff; 
+        text-decoration: none; 
+        transition: color 0.3s; 
+    }
+
+        .nav a:hover {
+            color: #800080; 
+            text-decoration: underline; 
+        }

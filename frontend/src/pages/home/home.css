@@ -1,0 +1,49 @@
+
+.container {
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding: 20px;
+    background-color: #000;
+    color: #fff;
+}
+
+
+.heading {
+    font-size: 36px; 
+    color: #fff; 
+    margin-bottom: 20px;
+
+
+.card {
+    background-color: #111; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+
+    .card h2 {
+        font-size: 24px; 
+        color: #fff; 
+        margin-bottom: 10px;
+    }
+
+    .card p {
+        font-size: 16px; 
+        color: #ccc;
+        margin-bottom: 10px; 
+    }
+
+
+.button {
+    background-color: #800080;
+    color: #fff; 
+    border: none; 
+    border-radius: 4px; 
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer; 
+}
+
+    .button:hover {
+        background-color: #4b0082; 
+    }
