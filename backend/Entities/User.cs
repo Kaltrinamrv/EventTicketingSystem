@@ -28,9 +28,9 @@ namespace backend.Entities
     
         public string PhoneNumber { get; set; }
 
-        public ICollection<Ticket> Tickets { get; set; }
-        public ICollection<Order> Orders { get; set; }
+        public ICollection<Ticket>? Tickets { get; set; }
+        public ICollection<Order>? Orders { get; set; }
 
-        public ICollection<Account> Accounts { get; set; }
+        public ICollection<Account>? Accounts { get; set; }
     }
 }
