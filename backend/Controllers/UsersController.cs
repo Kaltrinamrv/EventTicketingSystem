@@ -3,6 +3,7 @@ using backend.Entities;
 using backend.DataAccess;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using backend.Services;
 
 
 
@@ -21,6 +22,9 @@ namespace backend.Controllers
             _dbContext = dbContext;
         }
 
+
+        //Login
+
         [HttpPost("login")]
         public object Login([FromBody] UserLoginRequest request)
         {
@@ -33,7 +37,9 @@ namespace backend.Controllers
             {
                 return Unauthorized("Email or password did not match");
             }
-            return Ok("token");
+
+            var token = TokenService.GenerateToken(user.UserID);
+            return Ok(new Dictionary<string, string>() {{ "token", token }});
         }
 
 
@@ -47,8 +53,18 @@ namespace backend.Controllers
 
         // GET: api/User/5
         [HttpGet("{id}")]
-        public ActionResult<User> GetUser(int id)
+        public ActionResult<User> GetUser(int id, [FromQuery] string token)
         {
+            var principal = TokenService.VerifyToken(token);
+
+            if (principal == null)
+            {
+                return Unauthorized();
+            }
+
+
+            //a bon me lon qeshtu
+
             var user = _dbContext.Users.Find(id);
 
             if (user == null)
