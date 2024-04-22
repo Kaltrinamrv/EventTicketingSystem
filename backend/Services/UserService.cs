@@ -1,6 +1,5 @@
 using backend.Models;
-using System.Collections.Generic;
-using System.Linq;
+using backend.Helpers;
 
 namespace backend.Services
 {
@@ -16,6 +15,10 @@ namespace backend.Services
         // Create a new user
         public UserResponse CreateUser(CreateUserDto userDto)
         {
+            string hashedPassword = PasswordHelper.HashPassword(userDto.Password);
+
+
+
             var newUser = new User
             {
                 Username = userDto.Username,
@@ -53,6 +56,12 @@ namespace backend.Services
             var userToUpdate = _users.FirstOrDefault(u => u.UserID == userId);
             if (userToUpdate == null)
                 return null;
+
+            if (!string.IsNullOrEmpty(userDto.Password))
+            {
+                string hashedPassword = PasswordHelper.HashPassword(userDto.Password);
+                userToUpdate.Password = hashedPassword;
+            }
 
             userToUpdate.Username = userDto.Username;
             userToUpdate.Email = userDto.Email;
