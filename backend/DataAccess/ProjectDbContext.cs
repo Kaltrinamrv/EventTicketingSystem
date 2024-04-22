@@ -6,7 +6,7 @@ namespace backend.DataAccess
 {
     public class ProjectDbContext : DbContext
     {
-        // projectDb constructor
+        // ProjectDbContext constructor
         public ProjectDbContext(DbContextOptions<ProjectDbContext> options)
             : base(options)
         {
@@ -14,18 +14,19 @@ namespace backend.DataAccess
 
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<Payment> Accounts { get; set; }
+        public DbSet<Payment> Payments { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
 
 
+        // Model for configuring entity relationships
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
             modelBuilder.Entity<Ticket>()
-       .HasOne(t => t.User)
-       .WithMany(u => u.Tickets)
-       .HasForeignKey(t => t.UserID);
+                .HasOne(t => t.User)
+                .WithMany(u => u.Tickets)
+                .HasForeignKey(t => t.UserID);
 
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Event)
@@ -61,12 +62,5 @@ namespace backend.DataAccess
 
             base.OnModelCreating(modelBuilder);
         }
-        
-        
-
-
-
-
-
     }
 }
