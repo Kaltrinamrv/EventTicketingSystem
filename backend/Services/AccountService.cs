@@ -1,4 +1,3 @@
-using backend.DataAccess;
 using backend.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,51 +75,3 @@ namespace backend.Services
         }
     }
 }
-
-
-//Kaltrina test
-// using backend.DataAccess;
-//using backend.Entities;
-//using backend.Models;
-//using Microsoft.EntityFrameworkCore;
-//using System.Collections.Generic;
-//using System.Linq;
-
-//namespace backend.Services
-//{
-   // public class AccountService
-    //{
-   //     private readonly ProjectDbContext _context;
-
-      //  public AccountService(ProjectDbContext context)
-        //{
-          //  _context = context;
-        //}
-
-   //     public AccountResponse CreateAccount(CreateAccountDto accountDto)
-     //   {
-       //     var newAccount = new Account
-         //   {
-           //     UserID = accountDto.UserID,
-             //   PaymentInformation = accountDto.PaymentInformation
-            // };
-
-            // _context.Accounts.Add(newAccount);
-            // _context.SaveChanges();
-
-//            return MapAccountToAccountResponse(newAccount);
-   //      }
-
-        
-
-     //   private AccountResponse MapAccountToAccountResponse(Account account)
-        //{
-       //     return new AccountResponse
-          //  {
-            //    AccountID = account.AccountID,
-              //  UserID = account.UserID,
-                //PaymentInformation = account.PaymentInformation
-            //};
-        //}
-  //  }
-//}
