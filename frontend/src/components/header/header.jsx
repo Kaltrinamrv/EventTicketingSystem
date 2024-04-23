@@ -1,16 +1,16 @@
 import React from 'react';
-import './header.css';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
     return (
-        <header className="header">
-            <h1 className="logo">EVENTOPIA</h1>
-            <nav className="nav">
-                <ul>
-                    <li><a href="#discover-events">Discover Events</a></li>
-                    <li><a href="#create-events">Create Events</a></li>
-                    <li><a href="#account">Account</a></li>
-                    <li><a href="#login">Login</a></li>
+        <header className="bg-black text-white p-4 flex justify-between items-center">
+            <Link to="/" className="text-white text-lg font-semibold">Eventopia</Link>
+            <nav>
+                <ul className="flex space-x-4">
+                    <li><Link to="/about" className="hover:text-purple-500">About</Link></li>
+                    <li><Link to="/discover-event" className="hover:text-purple-500">Discover Event</Link></li>
+                    <li><Link to="/create-event" className="hover:text-purple-500">Create Event</Link></li>
+                    <li><Link to="/login" className="hover:text-purple-500">Log In</Link></li>
                 </ul>
             </nav>
         </header>
