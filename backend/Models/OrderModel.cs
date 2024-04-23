@@ -35,14 +35,5 @@ namespace backend.Models
     }
 
     // Order entity model
-    public class Order
-    {
-        public int OrderID { get; set; }
-        public int UserID { get; set; }
-        public int EventID { get; set; }
-        public int TicketID { get; set; }
-        public int Quantity { get; set; }
-        public decimal TotalPrice { get; set; }
-        public DateTime OrderDate { get; set; }
-    }
+    
 }

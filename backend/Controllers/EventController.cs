@@ -3,16 +3,15 @@ using backend.Entities;
 using backend.DataAccess;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using backend.Models;
+using System.Collections.Generic;
 
 namespace backend.Controllers
 {
-   
     [Route("api/[controller]")]
     [ApiController]
-
     public class EventsController : ControllerBase
     {
-
         private readonly ProjectDbContext _dbContext;
 
         public EventsController(ProjectDbContext dbContext)
@@ -20,53 +19,67 @@ namespace backend.Controllers
             _dbContext = dbContext;
         }
 
-        // GET: api/Event
+        // GET: api/Events
         [HttpGet]
-        public ActionResult<IEnumerable<Event>> GetEvents()
+        public ActionResult<IEnumerable<EventResponse>> GetEvents()
         {
-            return _dbContext.Events.ToList();
+            var events = _dbContext.Events.ToList();
+            var eventResponses = events.Select(ev => MapToEventResponse(ev)).ToList();
+            return Ok(eventResponses);
         }
 
-        // GET: api/Event/5
+        // GET: api/Events/5
         [HttpGet("{id}")]
-        public ActionResult<Event> GetEvent(int id)
+        public IActionResult GetEvent(int id)
         {
-            var ev = _dbContext.Events.Find(id); //named event to ev to ignore the confilct
+            var ev = _dbContext.Events.Find(id);
 
             if (ev == null)
             {
                 return NotFound();
             }
 
-            return ev;
+            var eventResponse = MapToEventResponse(ev);
+            return Ok(eventResponse);
         }
 
-        // POST: api/Event
+        // POST: api/Events
         [HttpPost]
-        public ActionResult<Event> PostEvent(Event ev)
+        public ActionResult<EventResponse> PostEvent(CreateEventDto createEventDto)
         {
+            var ev = MapToEvent(createEventDto);
             _dbContext.Events.Add(ev);
             _dbContext.SaveChanges();
 
-            return CreatedAtAction("GetEvent", new { id = ev.EventID }, ev);
+            var eventResponse = MapToEventResponse(ev);
+            return CreatedAtAction(nameof(GetEvent), new { id = eventResponse.EventID }, eventResponse);
         }
 
-        // PUT: api/Event/5
+        // PUT: api/Events/5
         [HttpPut("{id}")]
-        public IActionResult PutEvent(int id, Event ev)
+        public IActionResult PutEvent(int id, UpdateEventDto updateEventDto)
         {
-            if (id != ev.EventID)
+            var ev = _dbContext.Events.FirstOrDefault(e => e.EventID == id);
+
+            if (ev == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _dbContext.Entry(ev).State = EntityState.Modified;
+            // Update event properties
+            ev.Name = updateEventDto.Name;
+            ev.Description = updateEventDto.Description;
+            ev.DateAndTime = updateEventDto.DateAndTime;
+            ev.Location = updateEventDto.Location;
+            ev.TicketsAvailable = updateEventDto.TicketsAvailable;
+            ev.TicketPrice = updateEventDto.TicketPrice;
+
             _dbContext.SaveChanges();
 
             return NoContent();
         }
 
-        // DELETE: api/Event/5
+        // DELETE: api/Events/5
         [HttpDelete("{id}")]
         public IActionResult DeleteEvent(int id)
         {
@@ -82,6 +95,35 @@ namespace backend.Controllers
             return NoContent();
         }
 
+        // Helper method to map CreateEventDto to Event entity
+        private Event MapToEvent(CreateEventDto createEventDto)
+        {
+            return new Event
+            {
+                Name = createEventDto.Name,
+                Description = createEventDto.Description,
+                DateAndTime = createEventDto.DateAndTime,
+                Location = createEventDto.Location,
+                OrganizerID = createEventDto.OrganizerID,
+                TicketsAvailable = createEventDto.TicketsAvailable,
+                TicketPrice = createEventDto.TicketPrice
+            };
+        }
+
+        // Helper method to map Event entity to EventResponse DTO
+        private EventResponse MapToEventResponse(Event ev)
+        {
+            return new EventResponse
+            {
+                EventID = ev.EventID,
+                Name = ev.Name,
+                Description = ev.Description,
+                DateAndTime = ev.DateAndTime,
+                Location = ev.Location,
+                OrganizerID = ev.OrganizerID,
+                TicketsAvailable = ev.TicketsAvailable,
+                TicketPrice = ev.TicketPrice
+            };
+        }
     }
 }
-

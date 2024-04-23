@@ -1,5 +1,6 @@
 using backend.Models;
 using backend.Helpers;
+using backend.Entities;
 
 namespace backend.Services
 {

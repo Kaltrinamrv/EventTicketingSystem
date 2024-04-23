@@ -34,14 +34,5 @@ namespace backend.Models
     }
 
     // Ticket entity model
-    public class Ticket
-    {
-        public int TicketID { get; set; }
-        public int EventID { get; set; }
-        public string TicketType { get; set; }
-        public decimal Price { get; set; }
-        public int QuantityAvailable { get; set; }
-        public DateTime SaleStartDate { get; set; }
-        public DateTime SaleEndDate { get; set; }
-    }
+  
 }

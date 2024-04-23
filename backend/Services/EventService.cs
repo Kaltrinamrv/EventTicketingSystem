@@ -1,7 +1,7 @@
 ﻿using backend.Models;
 using System.Collections.Generic;
 using System.Linq;
-
+using backend.Entities;
 namespace backend.Services
 {
     public class EventService

@@ -3,16 +3,15 @@ using backend.Entities;
 using backend.DataAccess;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using backend.Models;
+using System.Collections.Generic;
 
 namespace backend.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
-
     public class OrdersController : ControllerBase
     {
-
         private readonly ProjectDbContext _dbContext;
 
         public OrdersController(ProjectDbContext dbContext)
@@ -20,16 +19,18 @@ namespace backend.Controllers
             _dbContext = dbContext;
         }
 
-        // GET: api/Order
+        // GET: api/Orders
         [HttpGet]
-        public ActionResult<IEnumerable<Order>> GetOrders()
+        public ActionResult<IEnumerable<OrderResponse>> GetOrders()
         {
-            return _dbContext.Orders.ToList();
+            var orders = _dbContext.Orders.ToList();
+            var orderResponses = orders.Select(order => MapToOrderResponse(order)).ToList();
+            return Ok(orderResponses);
         }
 
-        // GET: api/Order/5
+        // GET: api/Orders/5
         [HttpGet("{id}")]
-        public ActionResult<Order> GetOrder(int id)
+        public IActionResult GetOrder(int id)
         {
             var order = _dbContext.Orders.Find(id);
 
@@ -38,35 +39,47 @@ namespace backend.Controllers
                 return NotFound();
             }
 
-            return order;
+            var orderResponse = MapToOrderResponse(order);
+            return Ok(orderResponse);
         }
 
-        // POST: api/Order
+        // POST: api/Orders
         [HttpPost]
-        public ActionResult<Order> PostOrder(Order order)
+        public ActionResult<OrderResponse> PostOrder(CreateOrderDto createOrderDto)
         {
+            var order = MapToOrder(createOrderDto);
             _dbContext.Orders.Add(order);
             _dbContext.SaveChanges();
 
-            return CreatedAtAction("GetOrder", new { id = order.OrderID }, order);
+            var orderResponse = MapToOrderResponse(order);
+            return CreatedAtAction(nameof(GetOrder), new { id = orderResponse.OrderID }, orderResponse);
         }
 
-        // PUT: api/Order/5
+        // PUT: api/Orders/5
         [HttpPut("{id}")]
-        public IActionResult PutOrder(int id, Order order)
+        public IActionResult PutOrder(int id, UpdateOrderDto updateOrderDto)
         {
-            if (id != order.OrderID)
+            var order = _dbContext.Orders.FirstOrDefault(o => o.OrderID == id);
+
+            if (order == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _dbContext.Entry(order).State = EntityState.Modified;
+            // Update order properties
+            order.UserID = updateOrderDto.UserID;
+            order.EventID = updateOrderDto.EventID;
+            order.TicketID = updateOrderDto.TicketID;
+            order.Quantity = updateOrderDto.Quantity;
+            order.TotalPrice = updateOrderDto.TotalPrice;
+            order.OrderDate = updateOrderDto.OrderDate;
+
             _dbContext.SaveChanges();
 
             return NoContent();
         }
 
-        // DELETE: api/Order/5
+        // DELETE: api/Orders/5
         [HttpDelete("{id}")]
         public IActionResult DeleteOrder(int id)
         {
@@ -82,6 +95,33 @@ namespace backend.Controllers
             return NoContent();
         }
 
+        // Helper method to map CreateOrderDto to Order entity
+        private Order MapToOrder(CreateOrderDto createOrderDto)
+        {
+            return new Order
+            {
+                UserID = createOrderDto.UserID,
+                EventID = createOrderDto.EventID,
+                TicketID = createOrderDto.TicketID,
+                Quantity = createOrderDto.Quantity,
+                TotalPrice = createOrderDto.TotalPrice,
+                OrderDate = createOrderDto.OrderDate
+            };
+        }
+
+        // Helper method to map Order entity to OrderResponse DTO
+        private OrderResponse MapToOrderResponse(Order order)
+        {
+            return new OrderResponse
+            {
+                OrderID = order.OrderID,
+                UserID = order.UserID,
+                EventID = order.EventID,
+                TicketID = order.TicketID,
+                Quantity = order.Quantity,
+                TotalPrice = order.TotalPrice,
+                OrderDate = order.OrderDate
+            };
+        }
     }
 }
-

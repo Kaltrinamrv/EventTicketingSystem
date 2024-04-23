@@ -22,14 +22,14 @@ namespace backend.Services
 
             var payment = new Payment
             {
-                PaymentId = GeneratePaymentId(),
+                PaymentID = GeneratePaymentId(),
                 TicketId = ticketId,
                 Amount = amount,
                 PaymentDate = DateTime.Now
             };
 
             _payments.Add(payment);
-            Console.WriteLine($"Payment processed successfully. Payment ID: {payment.PaymentId}");
+            Console.WriteLine($"Payment processed successfully. Payment ID: {payment.PaymentID}");
         }
 
         public List<Payment> GetPayments()

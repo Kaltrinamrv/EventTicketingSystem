@@ -6,7 +6,7 @@ namespace backend.Entities
     {
        
       
-        public int PaymentId { get; set; }
+        public int PaymentID { get; set; }
         public int TicketId { get; set; }
         public decimal Amount { get; set; }
         public DateTime PaymentDate { get; set; }

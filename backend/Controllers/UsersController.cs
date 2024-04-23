@@ -4,20 +4,16 @@ using backend.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using backend.Services;
 using backend.Models;
-using User = backend.Entities.User;
 using System.Linq;
 using System.Security.Claims;
-
-
+using System.Collections.Generic;
 
 namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
     public class UsersController : ControllerBase
     {
-        
         private readonly ProjectDbContext _dbContext;
 
         public UsersController(ProjectDbContext dbContext)
@@ -25,16 +21,12 @@ namespace backend.Controllers
             _dbContext = dbContext;
         }
 
-
-        //Login
-
+        // POST: api/Users/login
         [HttpPost("login")]
-        public object Login([FromBody] UserLoginRequest request)
+        public IActionResult Login([FromBody] UserLoginRequest request)
         {
             var user = _dbContext.Users
-                .Where(user => user.Email == request.Email)
-                .Where(user => user.Password == request.Password)
-                .FirstOrDefault();
+                .FirstOrDefault(u => u.Email == request.Email && u.Password == request.Password);
 
             if (user == null)
             {
@@ -42,21 +34,21 @@ namespace backend.Controllers
             }
 
             var token = TokenService.GenerateToken(user.UserID);
-            return Ok(new Dictionary<string, string>() {{ "token", token }});
+            return Ok(new Dictionary<string, string>() { { "token", token } });
         }
 
-
-
-        // GET: api/User
+        // GET: api/Users
         [HttpGet]
-        public ActionResult<IEnumerable<User>> GetUsers()
+        public ActionResult<IEnumerable<UserResponse>> GetUsers()
         {
-            return _dbContext.Users.ToList();
+            var users = _dbContext.Users.ToList();
+            var userResponses = users.Select(user => MapToUserResponse(user)).ToList();
+            return Ok(userResponses);
         }
 
-        // GET: api/User/5
+        // GET: api/Users/5
         [HttpGet("{id}")]
-        public IActionResult GetById( [FromQuery] string token)
+        public IActionResult GetUserById(int id, [FromQuery] string token)
         {
             var principal = TokenService.VerifyToken(token);
 
@@ -65,65 +57,72 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-
             var idClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (idClaim == null)
+            if (idClaim == null || !int.TryParse(idClaim.Value, out var userId))
             {
                 return Unauthorized();
             }
 
-            if (!int.TryParse(idClaim.Value, out var id))
+            if (id != userId)
             {
-                return Unauthorized();
+                return Unauthorized("You are not authorized to access this resource");
             }
 
-            var user = _dbContext.Users.FirstOrDefault(user => user.UserID == id);
+            var user = _dbContext.Users.FirstOrDefault(u => u.UserID == id);
 
             if (user == null)
             {
                 return NotFound();
             }
-            //a bon me lon qeshtu
 
-
-            var userResponse = new UserResponse
-            {
-                UserID = user.UserID,
-                Username = user.Username,
-                Email = user.Email
-            };
-
+            var userResponse = MapToUserResponse(user);
             return Ok(userResponse);
         }
 
-                      
-
-        // POST: api/User
+        // POST: api/Users
         [HttpPost]
-        public ActionResult<User> PostUser(User user)
+        public ActionResult<UserResponse> CreateUser(CreateUserDto createUserDto)
         {
+            var user = MapToUser(createUserDto);
             _dbContext.Users.Add(user);
             _dbContext.SaveChanges();
 
-            return CreatedAtAction("GetUser", new { id = user.UserID }, user);
+            var userResponse = MapToUserResponse(user);
+            return CreatedAtAction(nameof(GetUserById), new { id = userResponse.UserID }, userResponse);
         }
 
-        // PUT: api/User/5
+        // PUT: api/Users/5
         [HttpPut("{id}")]
-        public IActionResult PutUser(int id, User user)
+        public IActionResult UpdateUser(int id, UpdateUserDto updateUserDto)
         {
-            if (id != user.UserID)
+            if (id != updateUserDto.UserID)
             {
                 return BadRequest();
             }
 
-            _dbContext.Entry(user).State = EntityState.Modified;
+            var user = _dbContext.Users.FirstOrDefault(u => u.UserID == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Update user properties
+            user.Username = updateUserDto.Username;
+            user.Email = updateUserDto.Email;
+            user.Password = updateUserDto.Password;
+            user.FirstName = updateUserDto.FirstName;
+            user.LastName = updateUserDto.LastName;
+            user.DateOfBirth = updateUserDto.DateOfBirth;
+            user.Address = updateUserDto.Address;
+            user.PhoneNumber = updateUserDto.PhoneNumber;
+
             _dbContext.SaveChanges();
 
             return NoContent();
         }
 
-        // DELETE: api/User/5
+        // DELETE: api/Users/5
         [HttpDelete("{id}")]
         public IActionResult DeleteUser(int id)
         {
@@ -138,11 +137,37 @@ namespace backend.Controllers
 
             return NoContent();
         }
-        
-    }
-    public class UserLoginRequest
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
+
+        // Helper method to map CreateUserDto to User entity
+        private User MapToUser(CreateUserDto createUserDto)
+        {
+            return new User
+            {
+                Username = createUserDto.Username,
+                Email = createUserDto.Email,
+                Password = createUserDto.Password,
+                FirstName = createUserDto.FirstName,
+                LastName = createUserDto.LastName,
+                DateOfBirth = createUserDto.DateOfBirth,
+                Address = createUserDto.Address,
+                PhoneNumber = createUserDto.PhoneNumber
+            };
+        }
+
+        // Helper method to map User entity to UserResponse DTO
+        private UserResponse MapToUserResponse(User user)
+        {
+            return new UserResponse
+            {
+                UserID = user.UserID,
+                Username = user.Username,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                DateOfBirth = user.DateOfBirth,
+                Address = user.Address,
+                PhoneNumber = user.PhoneNumber
+            };
+        }
     }
 }

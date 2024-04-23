@@ -19,8 +19,8 @@ namespace backend.Entities
 
         public Ticket Ticket { get; set;}
         
-        public int AccountID { get; set; }
-        public Payment Account { get; set; }
+        public int PaymentID { get; set; }
+        public Payment Payment { get; set; }
 
 
         public int Quantity { get; set; }

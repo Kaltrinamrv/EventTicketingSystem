@@ -5,8 +5,8 @@ using System;
         // DTO for creating a payment
         public class CreatePaymentDto
         {
-            public int PaymentId { get; set; }
-            public int TicketId { get; set; }
+            public int PaymentID { get; set; }
+            public int TicketID { get; set; }
             public decimal Amount { get; set; }
             public DateTime PaymentDate { get; set; }
         }
@@ -14,8 +14,8 @@ using System;
         // DTO for updating a payment
         public class UpdatePaymentDto
         {
-            public int PaymentId { get; set; }
-            public int TicketId { get; set; }
+            public int PaymentID { get; set; }
+            public int TicketID { get; set; }
             public decimal Amount { get; set; }
             public DateTime PaymentDate { get; set; }
         }
@@ -23,20 +23,14 @@ using System;
         // Response object for returning payment data
         public class PaymentResponse
         {
-            public int PaymentId { get; set; }
-            public int TicketId { get; set; }
+            public int PaymentID { get; set; }
+            public int TicketID { get; set; }
             public decimal Amount { get; set; }
             public DateTime PaymentDate { get; set; }
         }
 
         // Payment entity model
-        public class Payment
-        {
-            public int PaymentId { get; set; }
-            public int TicketId { get; set; }
-            public decimal Amount { get; set; }
-            public DateTime PaymentDate { get; set; }
-        }
+       
     }
 
 

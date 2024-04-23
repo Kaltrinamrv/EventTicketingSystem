@@ -35,7 +35,7 @@ namespace backend.Services
         public static ClaimsPrincipal VerifyToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("YOUR_SECRET_KEY_FROM_EVENTOPIAAAaaA");
+            var key = Encoding.ASCII.GetBytes("YOUR_SECRET_KEY_FROM_EVENTOPIAAAAaaa");
             try
             {
                 var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
