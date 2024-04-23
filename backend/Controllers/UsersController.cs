@@ -3,6 +3,10 @@ using backend.Entities;
 using backend.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using backend.Services;
+using backend.Models;
+using User = backend.Entities.User;
+using System.Linq;
+using System.Security.Claims;
 
 
 
@@ -52,7 +56,7 @@ namespace backend.Controllers
 
         // GET: api/User/5
         [HttpGet("{id}")]
-        public ActionResult<User> GetUser(int id, [FromQuery] string token)
+        public IActionResult GetById( [FromQuery] string token)
         {
             var principal = TokenService.VerifyToken(token);
 
@@ -62,17 +66,37 @@ namespace backend.Controllers
             }
 
 
-            //a bon me lon qeshtu
+            var idClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (idClaim == null)
+            {
+                return Unauthorized();
+            }
 
-            var user = _dbContext.Users.Find(id);
+            if (!int.TryParse(idClaim.Value, out var id))
+            {
+                return Unauthorized();
+            }
+
+            var user = _dbContext.Users.FirstOrDefault(user => user.UserID == id);
 
             if (user == null)
             {
                 return NotFound();
             }
+            //a bon me lon qeshtu
 
-            return user;
+
+            var userResponse = new UserResponse
+            {
+                UserID = user.UserID,
+                Username = user.Username,
+                Email = user.Email
+            };
+
+            return Ok(userResponse);
         }
+
+                      
 
         // POST: api/User
         [HttpPost]
