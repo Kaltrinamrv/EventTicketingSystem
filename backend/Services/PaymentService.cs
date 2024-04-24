@@ -1,6 +1,4 @@
 using backend.Entities;
-using System.Collections.Generic;
-using System.Linq;
 using System;
 using System.Collections.Generic;
 
@@ -8,7 +6,6 @@ namespace backend.Services
 {
     public class PaymentService
     {
-     
         private readonly List<Payment> _payments;
 
         public PaymentService()
@@ -16,16 +13,15 @@ namespace backend.Services
             _payments = new List<Payment>();
         }
 
-        public void ProcessPayment(int ticketId, decimal amount)
+        public void ProcessPayment(int ticketId, decimal amount, int userId)
         {
-          
-
             var payment = new Payment
             {
                 PaymentID = GeneratePaymentId(),
-                TicketId = ticketId,
+                TicketID = ticketId,
                 Amount = amount,
-                PaymentDate = DateTime.Now
+                PaymentDate = DateTime.Now,
+                UserID = userId
             };
 
             _payments.Add(payment);
@@ -34,17 +30,15 @@ namespace backend.Services
 
         public List<Payment> GetPayments()
         {
-            
             return new List<Payment>(_payments);
         }
 
         private int GeneratePaymentId()
         {
-           
             return _payments.Count + 1;
         }
+
+       
+
     }
-
 }
-
-

@@ -1,5 +1,6 @@
 
 using backend.DataAccess;
+using backend.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend
@@ -14,6 +15,8 @@ namespace backend
             // Add services to the container.
             builder.Services.AddDbContext<ProjectDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("EventCS")));
+
+            builder.Services.AddScoped<PaymentService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

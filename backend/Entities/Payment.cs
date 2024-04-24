@@ -7,7 +7,7 @@ namespace backend.Entities
        
       
         public int PaymentID { get; set; }
-        public int TicketId { get; set; }
+        public int TicketID { get; set; }
         public decimal Amount { get; set; }
         public DateTime PaymentDate { get; set; }
         public int UserID { get; set; }
