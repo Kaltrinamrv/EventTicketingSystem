@@ -24,7 +24,7 @@ namespace backend.Controllers
         {
             try
             {
-                _paymentService.ProcessPayment(paymentRequest.TicketID, paymentRequest.Amount, paymentRequest.UserID);
+                _paymentService.ProcessPayment(paymentRequest.TicketID, paymentRequest.OrderID, paymentRequest.Amount, paymentRequest.UserID);
                 return Ok("Payment processed successfully.");
             }
             catch (Exception ex)
@@ -43,6 +43,7 @@ namespace backend.Controllers
                 {
                     PaymentID = p.PaymentID,
                     TicketID = p.TicketID,
+                    OrderID = p.OrderID,
                     Amount = p.Amount,
                     PaymentDate = p.PaymentDate,
                     UserID = p.UserID

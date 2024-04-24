@@ -57,6 +57,7 @@ namespace backend.Migrations
                     PaymentID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TicketID = table.Column<int>(type: "int", nullable: false),
+                    OrderID = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserID = table.Column<int>(type: "int", nullable: false)
@@ -112,7 +113,6 @@ namespace backend.Migrations
                     UserID = table.Column<int>(type: "int", nullable: false),
                     EventID = table.Column<int>(type: "int", nullable: false),
                     TicketID = table.Column<int>(type: "int", nullable: false),
-                    PaymentID = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -125,12 +125,6 @@ namespace backend.Migrations
                         column: x => x.EventID,
                         principalTable: "Events",
                         principalColumn: "EventID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Orders_Payments_PaymentID",
-                        column: x => x.PaymentID,
-                        principalTable: "Payments",
-                        principalColumn: "PaymentID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Orders_Tickets_TicketID",
@@ -150,11 +144,6 @@ namespace backend.Migrations
                 name: "IX_Orders_EventID",
                 table: "Orders",
                 column: "EventID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_PaymentID",
-                table: "Orders",
-                column: "PaymentID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_TicketID",

@@ -13,12 +13,13 @@ namespace backend.Services
             _payments = new List<Payment>();
         }
 
-        public void ProcessPayment(int ticketId, decimal amount, int userId)
+        public void ProcessPayment(int ticketId, int orderId, decimal amount, int userId)
         {
             var payment = new Payment
             {
                 PaymentID = GeneratePaymentId(),
                 TicketID = ticketId,
+                OrderID = orderId,
                 Amount = amount,
                 PaymentDate = DateTime.Now,
                 UserID = userId

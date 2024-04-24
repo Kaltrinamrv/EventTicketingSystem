@@ -73,9 +73,6 @@ namespace backend.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("PaymentID")
-                        .HasColumnType("int");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -91,8 +88,6 @@ namespace backend.Migrations
                     b.HasKey("OrderID");
 
                     b.HasIndex("EventID");
-
-                    b.HasIndex("PaymentID");
 
                     b.HasIndex("TicketID");
 
@@ -111,6 +106,9 @@ namespace backend.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("OrderID")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
@@ -219,12 +217,6 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Entities.Payment", "Payment")
-                        .WithMany()
-                        .HasForeignKey("PaymentID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("backend.Entities.Ticket", "Ticket")
                         .WithMany()
                         .HasForeignKey("TicketID")
@@ -238,8 +230,6 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Event");
-
-                    b.Navigation("Payment");
 
                     b.Navigation("Ticket");
 
