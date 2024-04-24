@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTablesToDb : Migration
+    public partial class FinalMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,19 +51,21 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Accounts",
+                name: "Payments",
                 columns: table => new
                 {
-                    AccountID = table.Column<int>(type: "int", nullable: false)
+                    PaymentID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserID = table.Column<int>(type: "int", nullable: false),
-                    PaymentInformation = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    TicketID = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Accounts", x => x.AccountID);
+                    table.PrimaryKey("PK_Payments", x => x.PaymentID);
                     table.ForeignKey(
-                        name: "FK_Accounts_Users_UserID",
+                        name: "FK_Payments_Users_UserID",
                         column: x => x.UserID,
                         principalTable: "Users",
                         principalColumn: "UserID",
@@ -110,7 +112,7 @@ namespace backend.Migrations
                     UserID = table.Column<int>(type: "int", nullable: false),
                     EventID = table.Column<int>(type: "int", nullable: false),
                     TicketID = table.Column<int>(type: "int", nullable: false),
-                    AccountID = table.Column<int>(type: "int", nullable: false),
+                    PaymentID = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -119,16 +121,16 @@ namespace backend.Migrations
                 {
                     table.PrimaryKey("PK_Orders", x => x.OrderID);
                     table.ForeignKey(
-                        name: "FK_Orders_Accounts_AccountID",
-                        column: x => x.AccountID,
-                        principalTable: "Accounts",
-                        principalColumn: "AccountID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Orders_Events_EventID",
                         column: x => x.EventID,
                         principalTable: "Events",
                         principalColumn: "EventID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Orders_Payments_PaymentID",
+                        column: x => x.PaymentID,
+                        principalTable: "Payments",
+                        principalColumn: "PaymentID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Orders_Tickets_TicketID",
@@ -145,19 +147,14 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_UserID",
-                table: "Accounts",
-                column: "UserID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_AccountID",
-                table: "Orders",
-                column: "AccountID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Orders_EventID",
                 table: "Orders",
                 column: "EventID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_PaymentID",
+                table: "Orders",
+                column: "PaymentID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_TicketID",
@@ -167,6 +164,11 @@ namespace backend.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_UserID",
                 table: "Orders",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_UserID",
+                table: "Payments",
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
@@ -187,7 +189,7 @@ namespace backend.Migrations
                 name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "Accounts");
+                name: "Payments");
 
             migrationBuilder.DropTable(
                 name: "Tickets");

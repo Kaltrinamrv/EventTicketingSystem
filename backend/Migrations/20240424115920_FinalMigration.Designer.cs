@@ -12,8 +12,8 @@ using backend.DataAccess;
 namespace backend.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20240421014349_AddTablesToDb")]
-    partial class AddTablesToDb
+    [Migration("20240424115920_FinalMigration")]
+    partial class FinalMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,28 +24,6 @@ namespace backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("backend.Entities.Account", b =>
-                {
-                    b.Property<int>("AccountID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountID"));
-
-                    b.Property<string>("PaymentInformation")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
-
-                    b.HasKey("AccountID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("Accounts");
-                });
 
             modelBuilder.Entity("backend.Entities.Event", b =>
                 {
@@ -92,14 +70,14 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderID"));
 
-                    b.Property<int>("AccountID")
-                        .HasColumnType("int");
-
                     b.Property<int>("EventID")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("PaymentID")
+                        .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -115,15 +93,42 @@ namespace backend.Migrations
 
                     b.HasKey("OrderID");
 
-                    b.HasIndex("AccountID");
-
                     b.HasIndex("EventID");
+
+                    b.HasIndex("PaymentID");
 
                     b.HasIndex("TicketID");
 
                     b.HasIndex("UserID");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("backend.Entities.Payment", b =>
+                {
+                    b.Property<int>("PaymentID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentID"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TicketID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("PaymentID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("backend.Entities.Ticket", b =>
@@ -209,28 +214,17 @@ namespace backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("backend.Entities.Account", b =>
-                {
-                    b.HasOne("backend.Entities.User", "User")
-                        .WithMany("Accounts")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("backend.Entities.Order", b =>
                 {
-                    b.HasOne("backend.Entities.Account", "Account")
-                        .WithMany("Orders")
-                        .HasForeignKey("AccountID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("backend.Entities.Event", "Event")
                         .WithMany("Orders")
                         .HasForeignKey("EventID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Entities.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -246,11 +240,22 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Account");
-
                     b.Navigation("Event");
 
+                    b.Navigation("Payment");
+
                     b.Navigation("Ticket");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("backend.Entities.Payment", b =>
+                {
+                    b.HasOne("backend.Entities.User", "User")
+                        .WithMany("Accounts")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -272,11 +277,6 @@ namespace backend.Migrations
                     b.Navigation("Event");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("backend.Entities.Account", b =>
-                {
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("backend.Entities.Event", b =>
