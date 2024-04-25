@@ -16,10 +16,10 @@ namespace backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add AutoMapper with all profiles
+           
             builder.Services.AddAutoMapper(typeof(Program));
 
-            // Add services to the container.
+          
             builder.Services.AddDbContext<ProjectDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -36,7 +36,7 @@ namespace backend
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace backend.Models
 {
-    // DTO for creating a user
+   
     public class CreateUserDto
     {
         [Required]
@@ -31,7 +31,7 @@ namespace backend.Models
         public string PhoneNumber { get; set; }
     }
 
-    // DTO for updating a user
+   
     public class UpdateUserDto
     {
       
@@ -59,7 +59,7 @@ namespace backend.Models
         public string PhoneNumber { get; set; }
     }
 
-    // Response object for returning user data
+    
     public class UserResponse
     {
         public int UserID { get; set; }
@@ -74,7 +74,7 @@ namespace backend.Models
         public string Token { get; set; }
     }
 
-    // Request object for user login
+   
     public class UserLoginRequest
     {
         [Required]

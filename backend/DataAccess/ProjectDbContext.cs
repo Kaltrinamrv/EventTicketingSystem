@@ -43,7 +43,7 @@ namespace backend.DataAccess
                     .WithMany()
                     .HasForeignKey(e => e.UserID)
                     .IsRequired()
-                    .OnDelete(DeleteBehavior.Restrict); // Restrict cascade delete
+                    .OnDelete(DeleteBehavior.Restrict); 
                 entity.HasOne(e => e.Event)
                     .WithMany()
                     .HasForeignKey(e => e.EventID)
@@ -61,7 +61,7 @@ namespace backend.DataAccess
                     .WithMany()
                     .HasForeignKey(e => e.EventID)
                     .IsRequired()
-                    .OnDelete(DeleteBehavior.Restrict); // Restrict cascade delete
+                    .OnDelete(DeleteBehavior.Restrict); 
                 entity.Property(e => e.IsAvailable).IsRequired();
             });
 
@@ -72,7 +72,7 @@ namespace backend.DataAccess
                     .WithMany()
                     .HasForeignKey(e => e.OrderID)
                     .IsRequired()
-                    .OnDelete(DeleteBehavior.Restrict); // Restrict cascade delete
+                    .OnDelete(DeleteBehavior.Restrict); 
                 entity.Property(e => e.Amount).HasColumnType("decimal(18,2)").IsRequired();
                 entity.Property(e => e.PaymentDate).IsRequired();
             });

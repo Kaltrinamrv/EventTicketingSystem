@@ -127,7 +127,7 @@ namespace backend.Services
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
-                    // Add other claims as needed
+                    
                 }),
                 Expires = DateTime.UtcNow.AddHours(int.Parse(_configuration["JwtSettings:ExpirationHours"])),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

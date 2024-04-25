@@ -24,7 +24,7 @@ namespace backend.Services
         {
             var newTicket = _mapper.Map<Ticket>(ticketDto);
             _context.Tickets.Add(newTicket);
-            _context.SaveChanges();  //eventi me numer ekzitues funksionon tek ticketa, sepse nese nuk ekziston nje eveent smundesh me ble ticket
+            _context.SaveChanges();  //eventi me numer ekzistues funksionon tek ticketa, sepse nese nuk ekziston nje eveent smundesh me ble ticket
             return _mapper.Map<TicketResponse>(newTicket);
         }
 
@@ -57,8 +57,7 @@ namespace backend.Services
             var ticketToDelete = _context.Tickets.FirstOrDefault(t => t.TicketID == ticketId);
             if (ticketToDelete == null)
             {
-                // Ticket not found, return false or throw an exception
-                // You can choose to return false or throw an exception based on your application's requirements
+                
                 return false;
             }
 
@@ -70,9 +69,9 @@ namespace backend.Services
             }
             catch (Exception ex)
             {
-                // Log the exception for debugging purposes
+                
                 Console.WriteLine($"Error deleting ticket: {ex.Message}");
-                // Return false or rethrow the exception based on your error handling strategy
+                
                 return false;
             }
         }
