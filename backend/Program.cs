@@ -19,7 +19,7 @@ namespace backend
            
             builder.Services.AddAutoMapper(typeof(Program));
 
-          
+            //connection to db 
             builder.Services.AddDbContext<ProjectDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
