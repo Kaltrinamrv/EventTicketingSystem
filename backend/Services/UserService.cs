@@ -1,68 +1,88 @@
-using backend.Models;
-using backend.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutoMapper;
+using backend.DataAccess; 
 using backend.Entities;
+using backend.Helpers;
+using backend.IServices;
+using backend.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace backend.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
-        private readonly List<User> _users;
+        private readonly ProjectDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly IPasswordHashService _passwordHashService;
+        private readonly IConfiguration _configuration;
 
-        public UserService()
+        public UserService(IMapper mapper, ProjectDbContext context, IPasswordHashService passwordHashService, IConfiguration configuration)
         {
-            _users = new List<User>(); 
+            _mapper = mapper;
+            _context = context;
+            _passwordHashService = passwordHashService;
+            _configuration = configuration;
         }
 
-        // Create a new user
+        public UserResponse Authenticate(string email, string password)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+
+            if (user != null && _passwordHashService.VerifyPassword(password, user.Password))
+            {
+                var token = GenerateToken(user);
+                var userResponse = _mapper.Map<UserResponse>(user);
+                userResponse.Token = token;
+                return userResponse;
+            }
+
+            return null;
+        }
+
         public UserResponse CreateUser(CreateUserDto userDto)
         {
-            string hashedPassword = PasswordHelper.HashPassword(userDto.Password);
+            if (userDto == null)
+                throw new ArgumentNullException(nameof(userDto));
 
+            if (_context.Users.Any(u => u.Email == userDto.Email))
+                throw new ApplicationException("Email is already in use.");
 
+            string hashedPassword = _passwordHashService.HashPassword(userDto.Password);
 
-            var newUser = new User
-            {
-                Username = userDto.Username,
-                Password = userDto.Password,
-                Email = userDto.Email,
-                FirstName = userDto.FirstName,
-                LastName = userDto.LastName,
-                DateOfBirth = userDto.DateOfBirth,
-                Address = userDto.Address,
-                PhoneNumber = userDto.PhoneNumber
-            };
+            var newUser = _mapper.Map<User>(userDto);
+            newUser.Password = hashedPassword;
 
-            _users.Add(newUser);
+            _context.Users.Add(newUser);
+            _context.SaveChanges();
 
-            return MapUserToUserResponse(newUser);
+            var userResponse = _mapper.Map<UserResponse>(newUser);
+            userResponse.Token = GenerateToken(newUser);
+            return userResponse;
         }
 
         public IEnumerable<UserResponse> GetAllUsers()
         {
-            return _users.Select(u => MapUserToUserResponse(u));
+            var users = _context.Users.ToList();
+            return _mapper.Map<IEnumerable<UserResponse>>(users);
         }
 
         public UserResponse GetUserById(int userId)
         {
-            var user = _users.FirstOrDefault(u => u.UserID == userId);
-            if (user == null)
-                return null; 
-
-            return MapUserToUserResponse(user);
+            var user = _context.Users.FirstOrDefault(u => u.UserID == userId);
+            return _mapper.Map<UserResponse>(user);
         }
 
-        // Update a user
         public UserResponse UpdateUser(int userId, UpdateUserDto userDto)
         {
-            var userToUpdate = _users.FirstOrDefault(u => u.UserID == userId);
+            var userToUpdate = _context.Users.FirstOrDefault(u => u.UserID == userId);
             if (userToUpdate == null)
-                return null;
-
-            if (!string.IsNullOrEmpty(userDto.Password))
-            {
-                string hashedPassword = PasswordHelper.HashPassword(userDto.Password);
-                userToUpdate.Password = hashedPassword;
-            }
+                throw new ApplicationException("User not found.");
 
             userToUpdate.Username = userDto.Username;
             userToUpdate.Email = userDto.Email;
@@ -72,33 +92,49 @@ namespace backend.Services
             userToUpdate.Address = userDto.Address;
             userToUpdate.PhoneNumber = userDto.PhoneNumber;
 
-            return MapUserToUserResponse(userToUpdate);
+            if (!string.IsNullOrEmpty(userDto.Password))
+            {
+                string hashedPassword = _passwordHashService.HashPassword(userDto.Password);
+                userToUpdate.Password = hashedPassword;
+            }
+
+            _context.SaveChanges();
+
+            var updatedUserResponse = _mapper.Map<UserResponse>(userToUpdate);
+            updatedUserResponse.Token = GenerateToken(userToUpdate);
+            return updatedUserResponse;
         }
 
-        // Delete a user
         public bool DeleteUser(int userId)
         {
-            var userToDelete = _users.FirstOrDefault(u => u.UserID == userId);
+            var userToDelete = _context.Users.FirstOrDefault(u => u.UserID == userId);
             if (userToDelete == null)
-                return false; 
+                return false;
 
-            _users.Remove(userToDelete); 
+            _context.Users.Remove(userToDelete);
+            _context.SaveChanges();
             return true;
         }
 
-        private UserResponse MapUserToUserResponse(User user)
+        private string GenerateToken(User user)
         {
-            return new UserResponse
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:SecretKey"]);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                UserID = user.UserID,
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                DateOfBirth = user.DateOfBirth,
-                Address = user.Address,
-                PhoneNumber = user.PhoneNumber
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    // Add other claims as needed
+                }),
+                Expires = DateTime.UtcNow.AddHours(int.Parse(_configuration["JwtSettings:ExpirationHours"])),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

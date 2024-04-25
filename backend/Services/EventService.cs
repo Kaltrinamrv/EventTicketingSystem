@@ -1,92 +1,66 @@
-﻿using backend.Models;
+﻿using backend.Entities;
+using backend.IServices;
+using backend.Models;
+using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using backend.Entities;
+using backend.DataAccess;
+
 namespace backend.Services
 {
-    public class EventService
+    public class EventService : IEventService
     {
-        private readonly List<Event> _events;
+        private readonly ProjectDbContext _context;
+        private readonly IMapper _mapper;
 
-        public EventService()
+        public EventService(IMapper mapper, ProjectDbContext context)
         {
-            _events = new List<Event>(); 
+            _mapper = mapper;
+            _context = context;
         }
 
-        // Create a new event
         public EventResponse CreateEvent(CreateEventDto eventDto)
         {
-            var newEvent = new Event
-            {
-                Name = eventDto.Name,
-                Description = eventDto.Description,
-                DateAndTime = eventDto.DateAndTime,
-                Location = eventDto.Location,
-                OrganizerID = eventDto.OrganizerID,
-                TicketsAvailable = eventDto.TicketsAvailable,
-                TicketPrice = eventDto.TicketPrice
-            };
-
-            _events.Add(newEvent);
-
-            return MapEventToEventResponse(newEvent);
+            var newEvent = _mapper.Map<Event>(eventDto);
+            _context.Events.Add(newEvent);
+            _context.SaveChanges();
+            return _mapper.Map<EventResponse>(newEvent);
         }
 
         public IEnumerable<EventResponse> GetAllEvents()
         {
-            return _events.Select(e => MapEventToEventResponse(e));
+            var events = _context.Events.ToList();
+            return _mapper.Map<IEnumerable<EventResponse>>(events);
         }
 
         public EventResponse GetEventById(int eventId)
         {
-            var eventItem = _events.FirstOrDefault(e => e.EventID == eventId);
-            if (eventItem == null)
-                return null; 
-
-            return MapEventToEventResponse(eventItem);
+            var eventItem = _context.Events.FirstOrDefault(e => e.EventID == eventId);
+            return _mapper.Map<EventResponse>(eventItem);
         }
 
-        // Update an event
         public EventResponse UpdateEvent(int eventId, UpdateEventDto eventDto)
         {
-            var eventToUpdate = _events.FirstOrDefault(e => e.EventID == eventId);
+            var eventToUpdate = _context.Events.FirstOrDefault(e => e.EventID == eventId);
             if (eventToUpdate == null)
-                return null;
+                throw new ApplicationException("Event not found.");
 
-            eventToUpdate.Name = eventDto.Name;
-            eventToUpdate.Description = eventDto.Description;
-            eventToUpdate.DateAndTime = eventDto.DateAndTime;
-            eventToUpdate.Location = eventDto.Location;
-            eventToUpdate.TicketsAvailable = eventDto.TicketsAvailable;
-            eventToUpdate.TicketPrice = eventDto.TicketPrice;
+            _mapper.Map(eventDto, eventToUpdate);
+            _context.SaveChanges();
 
-            return MapEventToEventResponse(eventToUpdate);
+            return _mapper.Map<EventResponse>(eventToUpdate);
         }
 
-        // Delete an event
         public bool DeleteEvent(int eventId)
         {
-            var eventToDelete = _events.FirstOrDefault(e => e.EventID == eventId);
+            var eventToDelete = _context.Events.FirstOrDefault(e => e.EventID == eventId);
             if (eventToDelete == null)
-                return false; 
+                return false;
 
-            _events.Remove(eventToDelete); 
+            _context.Events.Remove(eventToDelete);
+            _context.SaveChanges();
             return true;
-        }
-
-        private EventResponse MapEventToEventResponse(Event eventItem)
-        {
-            return new EventResponse
-            {
-                EventID = eventItem.EventID,
-                Name = eventItem.Name,
-                Description = eventItem.Description,
-                DateAndTime = eventItem.DateAndTime,
-                Location = eventItem.Location,
-                OrganizerID = eventItem.OrganizerID,
-                TicketsAvailable = eventItem.TicketsAvailable,
-                TicketPrice = eventItem.TicketPrice
-            };
         }
     }
 }

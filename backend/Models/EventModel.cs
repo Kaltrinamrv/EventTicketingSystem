@@ -1,41 +1,50 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace backend.Models
 {
-    // DTO for creating an event
     public class CreateEventDto
     {
+        [Required]
+        public int TicketQuantity { get; set; }
+
+        [Required]
+        public decimal Price { get; set; }
+
+       
+        public DateTime DateTime { get; set; }
+
+        [Required]
         public string Name { get; set; }
+
         public string Description { get; set; }
-        public DateTime DateAndTime { get; set; }
+
+        [Required]
         public string Location { get; set; }
-        public int OrganizerID { get; set; }
-        public int TicketsAvailable { get; set; }
-        public decimal TicketPrice { get; set; }
+
+       
+        public string Organizer { get; set; }
     }
 
-    // DTO for updating an event
     public class UpdateEventDto
     {
+        public int TicketQuantity { get; set; }
+        public decimal Price { get; set; }
+        public DateTime DateTime { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public DateTime DateAndTime { get; set; }
         public string Location { get; set; }
-        public int TicketsAvailable { get; set; }
-        public decimal TicketPrice { get; set; }
+        public string Organizer { get; set; }
     }
 
-    // Response object for returning event data
     public class EventResponse
     {
         public int EventID { get; set; }
+        public int TicketQuantity { get; set; }
+        public decimal Price { get; set; }
+        public DateTime DateTime { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public DateTime DateAndTime { get; set; }
         public string Location { get; set; }
-        public int OrganizerID { get; set; }
-        public int TicketsAvailable { get; set; }
-        public decimal TicketPrice { get; set; }
+        public string Organizer { get; set; }
     }
-
-    // Event entity model
-   
 }

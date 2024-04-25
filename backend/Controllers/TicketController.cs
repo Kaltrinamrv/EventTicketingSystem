@@ -1,135 +1,72 @@
-using Microsoft.AspNetCore.Mvc;
-using backend.Entities;
-using backend.DataAccess;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using backend.IServices;
 using backend.Models;
-using backend.Services;
-using System.Net.Sockets;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 
 namespace backend.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
-
-    public class TicketsController : ControllerBase
+    public class TicketController : ControllerBase
     {
+        private readonly ITicketService _ticketService;
+        private readonly IMapper _mapper;
 
-        private readonly ProjectDbContext _dbContext;
-
-        public TicketsController(ProjectDbContext dbContext)
+        public TicketController(ITicketService ticketService, IMapper mapper)
         {
-            _dbContext = dbContext;
+            _ticketService = ticketService;
+            _mapper = mapper;
         }
 
-        // GET: api/Ticket
         [HttpGet]
         public ActionResult<IEnumerable<TicketResponse>> GetTickets()
         {
-            // return _dbContext.Tickets.ToList();
-            var tickets = _dbContext.Tickets.ToList();
-            var ticketResponses = tickets.Select(ticket => MapToTicketResponse(ticket)).ToList();
+            var tickets = _ticketService.GetAllTickets();
+            var ticketResponses = _mapper.Map<IEnumerable<TicketResponse>>(tickets);
             return Ok(ticketResponses);
         }
 
-        // GET: api/Ticket/5
         [HttpGet("{id}")]
-        public IActionResult GetTicket(int id)
+        public ActionResult<TicketResponse> GetTicketById(int id)
         {
-            var ticket = _dbContext.Tickets.Find(id);
-
+            var ticket = _ticketService.GetTicketById(id);
             if (ticket == null)
             {
-                return NotFound();
+                return NotFound("Ticket not found");
             }
-
-            var ticketResponse = MapToTicketResponse(ticket);
+            var ticketResponse = _mapper.Map<TicketResponse>(ticket);
             return Ok(ticketResponse);
         }
 
-        // POST: api/Ticket
         [HttpPost]
-        public ActionResult<TicketResponse> PostTicket(CreateTicketDto createTicketDto)
+        public ActionResult<TicketResponse> CreateTicket(CreateTicketDto createTicketDto)
         {
-            var ticket = MapToTicket(createTicketDto);
-            _dbContext.Tickets.Add(ticket);
-            _dbContext.SaveChanges();
-
-
-            var ticketResponse = MapToTicketResponse(ticket);
-            return CreatedAtAction("GetTicket", new { id = ticket.TicketID }, ticket);
+            var ticket = _ticketService.CreateTicket(createTicketDto);
+            return CreatedAtAction(nameof(GetTicketById), new { id = ticket.TicketID }, ticket);
         }
 
-        // PUT: api/Ticket/5
         [HttpPut("{id}")]
-        public IActionResult PutTicket(int id, UpdateTicketDto updateTicketDto)
+        public IActionResult UpdateTicket(int id, UpdateTicketDto updateTicketDto)
         {
-            var ticket = _dbContext.Tickets.FirstOrDefault(t => t.TicketID == id);
-            if (ticket == null)
+            var ticketResponse = _ticketService.UpdateTicket(id, updateTicketDto);
+            if (ticketResponse == null)
             {
-                return NotFound();
+                return NotFound("Failed to Update!");
             }
-
-            // Update Ticket
-            ticket.TicketType = updateTicketDto.TicketType;
-            ticket.Price = updateTicketDto.Price;
-            ticket.QuantityAvailable = updateTicketDto.QuantityAvailable;
-            ticket.SaleStartDate = updateTicketDto.SaleStartDate;
-            ticket.SaleEndDate = updateTicketDto.SaleEndDate;
-
-            _dbContext.SaveChanges();
-
-            return NoContent();
+            return Ok("Updated!");
         }
 
-        // DELETE: api/Ticket/5
         [HttpDelete("{id}")]
         public IActionResult DeleteTicket(int id)
         {
-            var ticket = _dbContext.Tickets.Find(id);
-            if (ticket == null)
+            var success = _ticketService.DeleteTicket(id);
+            if (!success)
             {
-                return NotFound();
+                return NotFound("Failed!");
             }
-
-            _dbContext.Tickets.Remove(ticket);
-            _dbContext.SaveChanges();
-
-            return NoContent();
+            return Ok("Deleted successfully");
         }
-
-        // Helper method, maps CreateTicket to Ticket
-        private Ticket MapToTicket(CreateTicketDto createTicketDto)
-        {
-            return new Ticket
-            {
-                EventID = createTicketDto.EventID,
-                UserID = createTicketDto.UserID,
-                TicketType = createTicketDto.TicketType,
-                Price = createTicketDto.Price,
-                QuantityAvailable = createTicketDto.QuantityAvailable,
-                SaleStartDate = createTicketDto.SaleStartDate,
-                SaleEndDate = createTicketDto.SaleEndDate,
-            };
-        }
-
-        // Helper method, maps Ticket to TicketResponse
-        private TicketResponse MapToTicketResponse(Ticket ticket)
-        {
-            return new TicketResponse
-            {
-                TicketID = ticket.TicketID,
-                EventID = ticket.EventID,
-                UserID = ticket.UserID,
-                TicketType = ticket.TicketType,
-                Price = ticket.Price,
-                QuantityAvailable = ticket.QuantityAvailable,
-                SaleStartDate = ticket.SaleStartDate,
-                SaleEndDate = ticket.SaleEndDate,
-            };
-        }
-
     }
 }
-

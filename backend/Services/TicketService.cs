@@ -1,90 +1,81 @@
+using AutoMapper;
+using backend.DataAccess;
+using backend.Entities;
+using backend.IServices;
 using backend.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using backend.Entities;
 
 namespace backend.Services
 {
-    public class TicketService
+    public class TicketService : ITicketService
     {
-        private readonly List<Ticket> _tickets;
+        private readonly ProjectDbContext _context;
+        private readonly IMapper _mapper;
 
-        public TicketService()
+        public TicketService(IMapper mapper, ProjectDbContext context)
         {
-            _tickets = new List<Ticket>(); 
+            _mapper = mapper;
+            _context = context;
         }
 
-        // Create a new ticket
         public TicketResponse CreateTicket(CreateTicketDto ticketDto)
         {
-            var newTicket = new Ticket
-            {
-                EventID = ticketDto.EventID,
-                TicketType = ticketDto.TicketType,
-                Price = ticketDto.Price,
-                QuantityAvailable = ticketDto.QuantityAvailable,
-                SaleStartDate = ticketDto.SaleStartDate,
-                SaleEndDate = ticketDto.SaleEndDate
-            };
-
-            _tickets.Add(newTicket);
-
-            return MapTicketToTicketResponse(newTicket);
+            var newTicket = _mapper.Map<Ticket>(ticketDto);
+            _context.Tickets.Add(newTicket);
+            _context.SaveChanges();  //eventi me numer ekzitues funksionon tek ticketa, sepse nese nuk ekziston nje eveent smundesh me ble ticket
+            return _mapper.Map<TicketResponse>(newTicket);
         }
 
         public IEnumerable<TicketResponse> GetAllTickets()
         {
-            return _tickets.Select(t => MapTicketToTicketResponse(t));
+            var tickets = _context.Tickets.ToList();
+            return _mapper.Map<IEnumerable<TicketResponse>>(tickets);
         }
 
         public TicketResponse GetTicketById(int ticketId)
         {
-            var ticket = _tickets.FirstOrDefault(t => t.TicketID == ticketId);
-            if (ticket == null)
-                return null;
-
-            return MapTicketToTicketResponse(ticket);
+            var ticket = _context.Tickets.FirstOrDefault(t => t.TicketID == ticketId);
+            return _mapper.Map<TicketResponse>(ticket);
         }
 
-        // Update a ticket
         public TicketResponse UpdateTicket(int ticketId, UpdateTicketDto ticketDto)
         {
-            var ticketToUpdate = _tickets.FirstOrDefault(t => t.TicketID == ticketId);
+            var ticketToUpdate = _context.Tickets.FirstOrDefault(t => t.TicketID == ticketId);
             if (ticketToUpdate == null)
-                return null; 
+                throw new ApplicationException("Ticket not found.");
 
-            ticketToUpdate.TicketType = ticketDto.TicketType;
-            ticketToUpdate.Price = ticketDto.Price;
-            ticketToUpdate.QuantityAvailable = ticketDto.QuantityAvailable;
-            ticketToUpdate.SaleStartDate = ticketDto.SaleStartDate;
-            ticketToUpdate.SaleEndDate = ticketDto.SaleEndDate;
+            _mapper.Map(ticketDto, ticketToUpdate);
+            _context.SaveChanges();
 
-            return MapTicketToTicketResponse(ticketToUpdate);
+            return _mapper.Map<TicketResponse>(ticketToUpdate);
         }
 
-        // Delete a ticket
         public bool DeleteTicket(int ticketId)
         {
-            var ticketToDelete = _tickets.FirstOrDefault(t => t.TicketID == ticketId);
+            var ticketToDelete = _context.Tickets.FirstOrDefault(t => t.TicketID == ticketId);
             if (ticketToDelete == null)
-                return false; 
-
-            _tickets.Remove(ticketToDelete); 
-            return true;
-        }
-
-        private TicketResponse MapTicketToTicketResponse(Ticket ticket)
-        {
-            return new TicketResponse
             {
-                TicketID = ticket.TicketID,
-                EventID = ticket.EventID,
-                TicketType = ticket.TicketType,
-                Price = ticket.Price,
-                QuantityAvailable = ticket.QuantityAvailable,
-                SaleStartDate = ticket.SaleStartDate,
-                SaleEndDate = ticket.SaleEndDate
-            };
+                // Ticket not found, return false or throw an exception
+                // You can choose to return false or throw an exception based on your application's requirements
+                return false;
+            }
+
+            try
+            {
+                _context.Tickets.Remove(ticketToDelete);
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging purposes
+                Console.WriteLine($"Error deleting ticket: {ex.Message}");
+                // Return false or rethrow the exception based on your error handling strategy
+                return false;
+            }
         }
+
     }
 }

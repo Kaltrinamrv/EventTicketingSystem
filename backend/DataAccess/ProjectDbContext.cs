@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using backend.Entities;
 
-
 namespace backend.DataAccess
 {
     public class ProjectDbContext : DbContext
@@ -9,7 +8,6 @@ namespace backend.DataAccess
         // ProjectDbContext constructor
         public ProjectDbContext(DbContextOptions<ProjectDbContext> options)
             : base(options) { }
-        
 
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -18,48 +16,73 @@ namespace backend.DataAccess
         public DbSet<Ticket> Tickets { get; set; }
 
 
-        // Model for configuring entity relationships
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.UserID);
+                entity.Property(e => e.Username).IsRequired();
+                entity.Property(e => e.Email).IsRequired();
+                entity.Property(e => e.Password).IsRequired();
+            });
 
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.User)
-                .WithMany(u => u.Tickets)
-                .HasForeignKey(t => t.UserID);
+            modelBuilder.Entity<Event>(entity =>
+            {
+                entity.HasKey(e => e.EventID);
+                entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.DateTime).IsRequired();
+                entity.Property(e => e.Location).IsRequired();
+                entity.Property(e => e.Price).HasColumnType("decimal(18,2)").IsRequired();
+            });
 
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Event)
-                .WithMany(e => e.Tickets)
-                .HasForeignKey(t => t.EventID);
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.HasKey(e => e.OrderID);
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserID)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Restrict); // Restrict cascade delete
+                entity.HasOne(e => e.Event)
+                    .WithMany()
+                    .HasForeignKey(e => e.EventID)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Restrict); // Restrict cascade delete
+                entity.Property(e => e.TicketQuantity).IsRequired();
+                entity.Property(e => e.TotalPrice).HasColumnType("decimal(18,2)").IsRequired();
+                entity.Property(e => e.OrderDate).IsRequired();
+            });
 
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.User)
-                .WithMany(u => u.Orders)
-                .HasForeignKey(o => o.UserID);
+            modelBuilder.Entity<Ticket>(entity =>
+            {
+                entity.HasKey(e => e.TicketID);
+                entity.HasOne(e => e.Event)
+                    .WithMany()
+                    .HasForeignKey(e => e.EventID)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Restrict); // Restrict cascade delete
+                entity.Property(e => e.IsAvailable).IsRequired();
+            });
 
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Event)
-                .WithMany(e => e.Orders)
-                .HasForeignKey(o => o.EventID);
-
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.User)
-                .WithMany(u => u.Orders)
-                .HasForeignKey(o => o.UserID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Ticket) 
-                .WithMany()            
-                .HasForeignKey(o => o.TicketID) 
-                .OnDelete(DeleteBehavior.Restrict); 
-
-            modelBuilder.Entity<Payment>()
-                .HasOne(a => a.User)
-                .WithMany(u => u.Accounts)
-                .HasForeignKey(a => a.UserID);
-
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.HasKey(e => e.PaymentID);
+                entity.HasOne(e => e.Order)
+                    .WithMany()
+                    .HasForeignKey(e => e.OrderID)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Restrict); // Restrict cascade delete
+                entity.Property(e => e.Amount).HasColumnType("decimal(18,2)").IsRequired();
+                entity.Property(e => e.PaymentDate).IsRequired();
+            });
         }
+
+
+
+
     }
 }
+
+
+

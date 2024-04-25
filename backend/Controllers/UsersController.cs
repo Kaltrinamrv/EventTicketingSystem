@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using backend.Entities;
-using backend.DataAccess;
-using Microsoft.EntityFrameworkCore;
-using backend.Services;
+﻿using AutoMapper;
+using backend.IServices;
 using backend.Models;
-using System.Linq;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 
 namespace backend.Controllers
@@ -14,160 +11,126 @@ namespace backend.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly ProjectDbContext _dbContext;
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
-        public UsersController(ProjectDbContext dbContext)
+        public UsersController(IUserService userService, IMapper mapper)
         {
-            _dbContext = dbContext;
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        // POST: api/Users/login
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] UserLoginRequest request)
-        {
-            var user = _dbContext.Users
-                .FirstOrDefault(u => u.Email == request.Email && u.Password == request.Password);
-
-            if (user == null)
-            {
-                return Unauthorized("Email or password did not match");
-            }
-
-            var token = TokenService.GenerateToken(user.UserID);
-            return Ok(new Dictionary<string, string>() { { "token", token } });
-        }
-
-        // GET: api/Users
         [HttpGet]
         public ActionResult<IEnumerable<UserResponse>> GetUsers()
         {
-            var users = _dbContext.Users.ToList();
-            var userResponses = users.Select(user => MapToUserResponse(user)).ToList();
-            return Ok(userResponses);
+            try
+            {
+                var users = _userService.GetAllUsers();
+                var userResponses = _mapper.Map<IEnumerable<UserResponse>>(users);
+                return Ok(userResponses);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here
+                return StatusCode(500, "An error occurred while retrieving users.");
+            }
         }
 
-        // GET: api/Users/5
         [HttpGet("{id}")]
-        public IActionResult GetUserById(int id, [FromQuery] string token)
+        public ActionResult<UserResponse> GetUserById(int id)
         {
-            var principal = TokenService.VerifyToken(token);
-
-            if (principal == null)
+            try
             {
-                return Unauthorized();
+                var user = _userService.GetUserById(id);
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+                return Ok(user);
             }
-
-            var idClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (idClaim == null || !int.TryParse(idClaim.Value, out var userId))
+            catch (Exception ex)
             {
-                return Unauthorized();
+                // Log the exception here
+                return StatusCode(500, "An error occurred while retrieving the user.");
             }
-
-            if (id != userId)
-            {
-                return Unauthorized("You are not authorized to access this resource");
-            }
-
-            var user = _dbContext.Users.FirstOrDefault(u => u.UserID == id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var userResponse = MapToUserResponse(user);
-            return Ok(userResponse);
         }
 
-        // POST: api/Users
         [HttpPost]
         public ActionResult<UserResponse> CreateUser(CreateUserDto createUserDto)
         {
-            var user = MapToUser(createUserDto);
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
-
-            var userResponse = MapToUserResponse(user);
-            return CreatedAtAction(nameof(GetUserById), new { id = userResponse.UserID }, userResponse);
+            try
+            {
+                var user = _userService.CreateUser(createUserDto);
+                return CreatedAtAction(nameof(GetUserById), new { id = user.UserID }, user);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here
+                return StatusCode(500, "An error occurred while creating the user.");
+            }
         }
 
-        // PUT: api/Users/5
         [HttpPut("{id}")]
         public IActionResult UpdateUser(int id, UpdateUserDto updateUserDto)
         {
-            if (id != updateUserDto.UserID)
+            try
             {
-                return BadRequest();
+                var updatedUser = _userService.UpdateUser(id, updateUserDto);
+                if (updatedUser == null)
+                    return NotFound();
+                return Ok(updatedUser);
             }
-
-            var user = _dbContext.Users.FirstOrDefault(u => u.UserID == id);
-
-            if (user == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                // Log the exception here
+                return StatusCode(500, "An error occurred while updating the user.");
             }
-
-            // Update user properties
-            user.Username = updateUserDto.Username;
-            user.Email = updateUserDto.Email;
-            user.Password = updateUserDto.Password;
-            user.FirstName = updateUserDto.FirstName;
-            user.LastName = updateUserDto.LastName;
-            user.DateOfBirth = updateUserDto.DateOfBirth;
-            user.Address = updateUserDto.Address;
-            user.PhoneNumber = updateUserDto.PhoneNumber;
-
-            _dbContext.SaveChanges();
-
-            return NoContent();
         }
 
-        // DELETE: api/Users/5
         [HttpDelete("{id}")]
         public IActionResult DeleteUser(int id)
         {
-            var user = _dbContext.Users.Find(id);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var result = _userService.DeleteUser(id);
+                if (!result)
+                    return NotFound();
+                return NoContent();
             }
-
-            _dbContext.Users.Remove(user);
-            _dbContext.SaveChanges();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                // Log the exception here
+                return StatusCode(500, "An error occurred while deleting the user.");
+            }
         }
 
-        // Helper method to map CreateUserDto to User entity
-        private User MapToUser(CreateUserDto createUserDto)
+        [HttpPost("login")]
+        public ActionResult<UserResponse> Login(UserLoginRequest loginRequest)
         {
-            return new User
+            try
             {
-                Username = createUserDto.Username,
-                Email = createUserDto.Email,
-                Password = createUserDto.Password,
-                FirstName = createUserDto.FirstName,
-                LastName = createUserDto.LastName,
-                DateOfBirth = createUserDto.DateOfBirth,
-                Address = createUserDto.Address,
-                PhoneNumber = createUserDto.PhoneNumber
-            };
-        }
+                // Validate the login request
+                if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Email) || string.IsNullOrEmpty(loginRequest.Password))
+                {
+                    return BadRequest("Invalid login request.");
+                }
 
-        // Helper method to map User entity to UserResponse DTO
-        private UserResponse MapToUserResponse(User user)
-        {
-            return new UserResponse
+                // Authenticate the user
+                var user = _userService.Authenticate(loginRequest.Email, loginRequest.Password);
+
+                if (user == null)
+                {
+                    return Unauthorized("Invalid email or password.");
+                }
+
+                // Return user information
+                return Ok(user);
+            }
+            catch (Exception ex)
             {
-                UserID = user.UserID,
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                DateOfBirth = user.DateOfBirth,
-                Address = user.Address,
-                PhoneNumber = user.PhoneNumber
-            };
+                // Log the exception here
+                return StatusCode(500, "An error occurred while processing the login request.");
+            }
         }
     }
 }

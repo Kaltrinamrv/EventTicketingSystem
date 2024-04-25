@@ -30,7 +30,7 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventID"));
 
-                    b.Property<DateTime>("DateAndTime")
+                    b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
@@ -45,13 +45,17 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OrganizerID")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<decimal>("TicketPrice")
+                    b.Property<string>("Organizer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("TicketsAvailable")
+                    b.Property<int>("TicketQuantity")
                         .HasColumnType("int");
 
                     b.HasKey("EventID");
@@ -73,10 +77,7 @@ namespace backend.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TicketID")
+                    b.Property<int>("TicketQuantity")
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
@@ -88,8 +89,6 @@ namespace backend.Migrations
                     b.HasKey("OrderID");
 
                     b.HasIndex("EventID");
-
-                    b.HasIndex("TicketID");
 
                     b.HasIndex("UserID");
 
@@ -113,15 +112,9 @@ namespace backend.Migrations
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TicketID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
-
                     b.HasKey("PaymentID");
 
-                    b.HasIndex("UserID");
+                    b.HasIndex("OrderID");
 
                     b.ToTable("Payments");
                 });
@@ -137,11 +130,11 @@ namespace backend.Migrations
                     b.Property<int>("EventID")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("QuantityAvailable")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("SaleEndDate")
                         .HasColumnType("datetime2");
@@ -153,14 +146,9 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
-
                     b.HasKey("TicketID");
 
                     b.HasIndex("EventID");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Tickets");
                 });
@@ -212,74 +200,42 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Entities.Order", b =>
                 {
                     b.HasOne("backend.Entities.Event", "Event")
-                        .WithMany("Orders")
-                        .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Entities.Ticket", "Ticket")
                         .WithMany()
-                        .HasForeignKey("TicketID")
+                        .HasForeignKey("EventID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("backend.Entities.User", "User")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");
-
-                    b.Navigation("Ticket");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("backend.Entities.Payment", b =>
                 {
-                    b.HasOne("backend.Entities.User", "User")
-                        .WithMany("Accounts")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("backend.Entities.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderID")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("backend.Entities.Ticket", b =>
                 {
                     b.HasOne("backend.Entities.Event", "Event")
-                        .WithMany("Tickets")
+                        .WithMany()
                         .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Entities.User", "User")
-                        .WithMany("Tickets")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("backend.Entities.Event", b =>
-                {
-                    b.Navigation("Orders");
-
-                    b.Navigation("Tickets");
-                });
-
-            modelBuilder.Entity("backend.Entities.User", b =>
-                {
-                    b.Navigation("Accounts");
-
-                    b.Navigation("Orders");
-
-                    b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618
         }

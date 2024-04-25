@@ -1,91 +1,66 @@
+using AutoMapper;
+using backend.DataAccess;
+using backend.Entities;
+using backend.IServices;
 using backend.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using backend.Entities;
 
 namespace backend.Services
 {
-    public class OrderService
+    public class OrderService : IOrderService
     {
-        private readonly List<Order> _orders;
+        private readonly ProjectDbContext _context;
+        private readonly IMapper _mapper;
 
-        public OrderService()
+        public OrderService(IMapper mapper, ProjectDbContext context)
         {
-            _orders = new List<Order>(); 
+            _mapper = mapper;
+            _context = context;
         }
 
-        // Create a new order
         public OrderResponse CreateOrder(CreateOrderDto orderDto)
         {
-            var newOrder = new Order
-            {
-                UserID = orderDto.UserID,
-                EventID = orderDto.EventID,
-                TicketID = orderDto.TicketID,
-                Quantity = orderDto.Quantity,
-                TotalPrice = orderDto.TotalPrice,
-                OrderDate = orderDto.OrderDate
-            };
-
-            _orders.Add(newOrder);
-
-            return MapOrderToOrderResponse(newOrder);
+            var newOrder = _mapper.Map<Order>(orderDto);
+            _context.Orders.Add(newOrder);
+            _context.SaveChanges();
+            return _mapper.Map<OrderResponse>(newOrder);
         }
 
         public IEnumerable<OrderResponse> GetAllOrders()
-        { 
-            return _orders.Select(o => MapOrderToOrderResponse(o));
+        {
+            var orders = _context.Orders.ToList();
+            return _mapper.Map<IEnumerable<OrderResponse>>(orders);
         }
 
         public OrderResponse GetOrderById(int orderId)
         {
-            var order = _orders.FirstOrDefault(o => o.OrderID == orderId);
-            if (order == null)
-                return null; 
-
-            return MapOrderToOrderResponse(order);
+            var order = _context.Orders.FirstOrDefault(o => o.OrderID == orderId);
+            return _mapper.Map<OrderResponse>(order);
         }
 
-        // Update an order
         public OrderResponse UpdateOrder(int orderId, UpdateOrderDto orderDto)
         {
-            var orderToUpdate = _orders.FirstOrDefault(o => o.OrderID == orderId);
+            var orderToUpdate = _context.Orders.FirstOrDefault(o => o.OrderID == orderId);
             if (orderToUpdate == null)
-                return null;
+                throw new ApplicationException("Order not found.");
 
-            orderToUpdate.UserID = orderDto.UserID;
-            orderToUpdate.EventID = orderDto.EventID;
-            orderToUpdate.TicketID = orderDto.TicketID;
-            orderToUpdate.Quantity = orderDto.Quantity;
-            orderToUpdate.TotalPrice = orderDto.TotalPrice;
-            orderToUpdate.OrderDate = orderDto.OrderDate;
+            _mapper.Map(orderDto, orderToUpdate);
+            _context.SaveChanges();
 
-            return MapOrderToOrderResponse(orderToUpdate);
+            return _mapper.Map<OrderResponse>(orderToUpdate);
         }
 
-        // Delete an order
         public bool DeleteOrder(int orderId)
         {
-            var orderToDelete = _orders.FirstOrDefault(o => o.OrderID == orderId);
+            var orderToDelete = _context.Orders.FirstOrDefault(o => o.OrderID == orderId);
             if (orderToDelete == null)
-                return false; 
+                return false;
 
-            _orders.Remove(orderToDelete); 
+            _context.Orders.Remove(orderToDelete);
+            _context.SaveChanges();
             return true;
-        }
-
-        private OrderResponse MapOrderToOrderResponse(Order order)
-        {
-            return new OrderResponse
-            {
-                OrderID = order.OrderID,
-                UserID = order.UserID,
-                EventID = order.EventID,
-                TicketID = order.TicketID,
-                Quantity = order.Quantity,
-                TotalPrice = order.TotalPrice,
-                OrderDate = order.OrderDate
-            };
         }
     }
 }

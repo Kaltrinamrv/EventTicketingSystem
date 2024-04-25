@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using AutoMapper;
 using backend.Entities;
 using backend.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using backend.Models;
 
 namespace backend.Controllers
@@ -12,60 +11,32 @@ namespace backend.Controllers
     [ApiController]
     public class PaymentController : ControllerBase
     {
-        private readonly PaymentService _paymentService;
+        private readonly IPaymentService _paymentService;
+        private readonly IMapper _mapper;
 
-        public PaymentController(PaymentService paymentService)
+        public PaymentController(IPaymentService paymentService, IMapper mapper)
         {
             _paymentService = paymentService;
+            _mapper = mapper;
         }
 
         [HttpPost("process")]
-        public IActionResult ProcessPayment([FromBody] CreatePaymentDto paymentRequest)
+        public async Task<IActionResult> ProcessPayment(PaymentDto paymentDto)
         {
-            try
-            {
-                _paymentService.ProcessPayment(paymentRequest.TicketID, paymentRequest.OrderID, paymentRequest.Amount, paymentRequest.UserID);
-                return Ok("Payment processed successfully.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
-            }
+            var payment = _mapper.Map<Payment>(paymentDto);
+            var processedPayment = await _paymentService.ProcessPayment(payment);
+            var processedPaymentDto = _mapper.Map<PaymentDto>(processedPayment);
+            return Ok(processedPaymentDto);
         }
 
-        [HttpGet("payments")]
-        public IActionResult GetPayments()
+        [HttpGet("response/{paymentId}")]
+        public async Task<IActionResult> GetPaymentResponse(int paymentId)
         {
-            try
-            {
-                List<Payment> payments = _paymentService.GetPayments();
-                List<PaymentResponse> paymentResponses = payments.Select(p => new PaymentResponse
-                {
-                    PaymentID = p.PaymentID,
-                    TicketID = p.TicketID,
-                    OrderID = p.OrderID,
-                    Amount = p.Amount,
-                    PaymentDate = p.PaymentDate,
-                    UserID = p.UserID
-                }).ToList();
-                return Ok(paymentResponses);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
-            }
+            var paymentResponse = await _paymentService.GetPaymentResponse(paymentId);
+            var paymentResponseDto = _mapper.Map<PaymentDto>(paymentResponse);
+            if (paymentResponseDto == null)
+                return NotFound();
+            return Ok(paymentResponseDto);
         }
     }
 }
-
-
-public class PaymentRequest
-    {
-        public int TicketId { get; set; }
-        public decimal Amount { get; set; }
-    }
-
-
-
-
-
