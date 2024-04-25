@@ -61,6 +61,7 @@ namespace backend.Services
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
+
             var userResponse = _mapper.Map<UserResponse>(newUser);
             userResponse.Token = GenerateToken(newUser);
             return userResponse;
@@ -119,7 +120,7 @@ namespace backend.Services
         private string GenerateToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:SecretKey"]);
+            var key = Encoding.ASCII.GetBytes("Eventopia@SecretKey1234567890");
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -129,7 +130,7 @@ namespace backend.Services
                     new Claim(ClaimTypes.Email, user.Email),
                     
                 }),
-                Expires = DateTime.UtcNow.AddHours(int.Parse(_configuration["JwtSettings:ExpirationHours"])),
+                Expires = DateTime.UtcNow.AddHours(int.Parse("Eventopia@SecretKey1234567890")),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 

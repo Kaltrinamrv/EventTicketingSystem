@@ -5,7 +5,6 @@ using System.Security.Claims;
 using Microsoft.Extensions;
 
 
-
 namespace backend.Services
 
 {//tokeni???
@@ -15,7 +14,7 @@ namespace backend.Services
         public static string GenerateToken(int id)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("YOUR_SECRET_KEY_FROM_EVENTOPIAAAAaaa");
+            var key = Encoding.ASCII.GetBytes("Eventopia@SecretKey1234567890");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -35,7 +34,7 @@ namespace backend.Services
         public static ClaimsPrincipal VerifyToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("YOUR_SECRET_KEY_FROM_EVENTOPIAAAAaaa");
+            var key = Encoding.ASCII.GetBytes("Eventopia@SecretKey1234567890");
             try
             {
                 var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters

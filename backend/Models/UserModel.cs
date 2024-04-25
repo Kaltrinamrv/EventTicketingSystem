@@ -1,3 +1,4 @@
+using backend.Entities;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.ComponentModel.DataAnnotations;
 
@@ -71,6 +72,7 @@ namespace backend.Models
         public DateTime DateOfBirth { get; set; }
         public string Address { get; set; }
         public string PhoneNumber { get; set; }
+        //public Role Role { get; set; }
         public string Token { get; set; }
     }
 

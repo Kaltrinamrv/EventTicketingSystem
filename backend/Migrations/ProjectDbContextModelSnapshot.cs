@@ -192,6 +192,10 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Enum>("Role")
+                        .IsRequired()
+                        .HasColumnType("int");
+
                     b.HasKey("UserID");
 
                     b.ToTable("Users");
