@@ -4,9 +4,11 @@ using backend.IServices;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
+   // [Authorize] - Authorization from login
     [ApiController]
     [Route("api/[controller]")]
     public class EventController : ControllerBase
