@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using backend.DataAccess;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace backend.Services
 {
@@ -62,5 +64,18 @@ namespace backend.Services
             _context.SaveChanges();
             return true;
         }
+
+        public async Task<IEnumerable<EventResponse>> SearchEvents(string query)
+        {
+            var lowercaseQuery = query.ToLower();
+
+            var searchResult = await _context.Events
+                                            .Where(e => e.Name.ToLower().Contains(lowercaseQuery) ||
+                                                        e.Location.ToLower().Contains(lowercaseQuery))
+                                            .ToListAsync();
+
+            return _mapper.Map<IEnumerable<EventResponse>>(searchResult);
+        }
+
     }
 }

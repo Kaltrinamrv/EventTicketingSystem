@@ -10,5 +10,6 @@ namespace backend.IServices
         EventResponse GetEventById(int eventId);
         EventResponse UpdateEvent(int eventId, UpdateEventDto eventDto);
         bool DeleteEvent(int eventId);
+        Task<IEnumerable<EventResponse>> SearchEvents(string query);
     }
 }
