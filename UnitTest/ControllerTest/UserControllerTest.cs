@@ -60,7 +60,7 @@ namespace backend.Tests
             var okResult = result.Result as OkObjectResult;
             Assert.Equal(userResponse, okResult.Value);
         }
-        /*
+        /* Error to be fixed, DO NOT TOUCH
         [Fact]
         public void GetUsers_ReturnsOk_WithListOfUsers()
         {

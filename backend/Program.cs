@@ -25,7 +25,7 @@ namespace backend
 
             // Connection to the database
             builder.Services.AddDbContext<ProjectDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("EventCS")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
             builder.Services.AddScoped<IPaymentService, PaymentService>();
@@ -39,8 +39,10 @@ namespace backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "EventCS", Version = "v1" });
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "DefaultConnection", Version = "v1" });
             });
+
+          
 
             // Jwt configuration starts here
             var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
@@ -62,6 +64,13 @@ namespace backend
                 });
             // Jwt configuration ends here
 
+            builder.Services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+            });
+
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -70,12 +79,15 @@ namespace backend
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "EventCS v1"));
             }
 
+            app.UseCors("AllowOrigin");
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication(); // Add this line to enable authentication
             app.UseAuthorization();
             app.MapControllers();
             app.Run();
+
         }
     }
 }
+
