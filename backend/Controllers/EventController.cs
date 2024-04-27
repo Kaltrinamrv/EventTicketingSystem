@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
-   // [Authorize] - Authorization from login
+   //[Authorize] //- Authorization from login
     [ApiController]
     [Route("api/[controller]")]
     public class EventController : ControllerBase
@@ -21,7 +21,7 @@ namespace backend.Controllers
             _eventService = eventService;
             _mapper = mapper;
         }
-
+        //[AllowAnonymous] funksionon
         [HttpPost]
         public IActionResult CreateEvent(CreateEventDto eventDto)
         {
@@ -29,7 +29,7 @@ namespace backend.Controllers
             var response = _mapper.Map<EventResponse>(createdEvent);
             return CreatedAtAction(nameof(GetEventById), new { eventId = response.EventID }, response);
         }
-
+        //[AllowAnonymous] funksionon
         [HttpGet]
         public IActionResult GetAllEvents()
         {
@@ -37,7 +37,7 @@ namespace backend.Controllers
             var response = _mapper.Map<IEnumerable<EventResponse>>(events);
             return Ok(response);
         }
-
+        //[AllowAnonymous] funksionon
         [HttpGet("{eventId}")]
         public IActionResult GetEventById(int eventId)
         {
@@ -48,7 +48,7 @@ namespace backend.Controllers
             var response = _mapper.Map<EventResponse>(eventItem);
             return Ok(response);
         }
-
+       // [AllowAnonymous] funksionon
         [HttpPut("{eventId}")]
         public IActionResult UpdateEvent(int eventId, UpdateEventDto eventDto)
         {
@@ -63,7 +63,7 @@ namespace backend.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        //[AllowAnonymous] funksionon
         [HttpDelete("{eventId}")]
         public IActionResult DeleteEvent(int eventId)
         {

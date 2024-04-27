@@ -3,18 +3,19 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.Extensions;
+using backend.IServices;
 
 
 namespace backend.Services
 
 {//tokeni???
-    public class TokenService
+    public class TokenService : ITokenService
     {
 
-        public static string GenerateToken(int id)
+        public string GenerateToken(int id)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("Eventopia@SecretKey1234567890");
+            var key = Encoding.ASCII.GetBytes("YOUR_SECRET_KEY_FROM_EVENTOPIAAAAaaa");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -31,10 +32,10 @@ namespace backend.Services
 
         }
 
-        public static ClaimsPrincipal VerifyToken(string token)
+        public ClaimsPrincipal VerifyToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("Eventopia@SecretKey1234567890");
+            var key = Encoding.ASCII.GetBytes("YOUR_SECRET_KEY_FROM_EVENTOPIAAAAaaa");
             try
             {
                 var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters

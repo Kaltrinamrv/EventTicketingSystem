@@ -32,6 +32,7 @@ namespace backend.Services
         {
             var events = _context.Events.ToList();
             return _mapper.Map<IEnumerable<EventResponse>>(events);
+
         }
 
         public EventResponse GetEventById(int eventId)

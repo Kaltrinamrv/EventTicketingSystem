@@ -18,7 +18,7 @@ namespace backend.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost]
+        [HttpPost] //funksionon
         public IActionResult CreateOrder(CreateOrderDto orderDto)
         {
             var createdOrder = _orderService.CreateOrder(orderDto);
@@ -26,7 +26,7 @@ namespace backend.Controllers
             return CreatedAtAction(nameof(GetOrderById), new { orderId = response.OrderID }, response);
         }
 
-        [HttpGet]
+        [HttpGet] //funksionon
         public IActionResult GetAllOrders()
         {
             var orders = _orderService.GetAllOrders();
@@ -34,7 +34,7 @@ namespace backend.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{orderId}")]
+        [HttpGet("{orderId}")] //funksionon
         public IActionResult GetOrderById(int orderId)
         {
             var order = _orderService.GetOrderById(orderId);
@@ -45,7 +45,7 @@ namespace backend.Controllers
             return Ok(response);
         }
 
-        [HttpPut("{orderId}")]
+        [HttpPut("{orderId}")] //funksionon
         public IActionResult UpdateOrder(int orderId, UpdateOrderDto orderDto)
         {
             try
@@ -60,14 +60,14 @@ namespace backend.Controllers
             }
         }
 
-        [HttpDelete("{orderId}")]
+        [HttpDelete("{orderId}")] //funksiono
         public IActionResult DeleteOrder(int orderId)
         {
             var isDeleted = _orderService.DeleteOrder(orderId);
             if (!isDeleted)
                 return NotFound();
 
-            return NoContent();
+            return Ok("Deleted successfully!");
         }
     }
 }

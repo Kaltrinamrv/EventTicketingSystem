@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace backend.Services
+namespace backend.Services   //funksionon komplet perveq put, a me leju me update ticketid??
 {
     public class TicketService : ITicketService
     {

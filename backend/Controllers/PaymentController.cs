@@ -4,6 +4,7 @@ using backend.Entities;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using backend.Models;
+using backend.IServices;
 
 namespace backend.Controllers
 {
@@ -20,20 +21,21 @@ namespace backend.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("process")]
-        public async Task<IActionResult> ProcessPayment(PaymentDto paymentDto)
+        [HttpPost("process")] //funksionon
+        public async Task<IActionResult> ProcessPayment(PaymentProcessDto paymentDto)
         {
+            
+            var processedPayment = await _paymentService.ProcessPayment(paymentDto);
             var payment = _mapper.Map<Payment>(paymentDto);
-            var processedPayment = await _paymentService.ProcessPayment(payment);
-            var processedPaymentDto = _mapper.Map<PaymentDto>(processedPayment);
+            var processedPaymentDto = _mapper.Map<PaymentProcessDto>(processedPayment);
             return Ok(processedPaymentDto);
         }
 
-        [HttpGet("response/{paymentId}")]
+        [HttpGet("response/{paymentId}")] //funksionon
         public async Task<IActionResult> GetPaymentResponse(int paymentId)
         {
             var paymentResponse = await _paymentService.GetPaymentResponse(paymentId);
-            var paymentResponseDto = _mapper.Map<PaymentDto>(paymentResponse);
+            var paymentResponseDto = _mapper.Map<PaymentResponseDto>(paymentResponse);
             if (paymentResponseDto == null)
                 return NotFound();
             return Ok(paymentResponseDto);

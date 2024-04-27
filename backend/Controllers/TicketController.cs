@@ -1,6 +1,7 @@
 using AutoMapper;
 using backend.IServices;
 using backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace backend.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpGet] //funksionon
         public ActionResult<IEnumerable<TicketResponse>> GetTickets()
         {
             var tickets = _ticketService.GetAllTickets();
@@ -28,7 +29,7 @@ namespace backend.Controllers
             return Ok(ticketResponses);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}")] //funksionon
         public ActionResult<TicketResponse> GetTicketById(int id)
         {
             var ticket = _ticketService.GetTicketById(id);
@@ -40,14 +41,14 @@ namespace backend.Controllers
             return Ok(ticketResponse);
         }
 
-        [HttpPost]
+        [HttpPost] //funksionon
         public ActionResult<TicketResponse> CreateTicket(CreateTicketDto createTicketDto)
         {
             var ticket = _ticketService.CreateTicket(createTicketDto);
             return CreatedAtAction(nameof(GetTicketById), new { id = ticket.TicketID }, ticket);
         }
-
-        [HttpPut("{id}")]
+        
+        [HttpPut("{id}")] //nuk bon me bo update ticket id se osht key
         public IActionResult UpdateTicket(int id, UpdateTicketDto updateTicketDto)
         {
             var ticketResponse = _ticketService.UpdateTicket(id, updateTicketDto);
@@ -58,7 +59,7 @@ namespace backend.Controllers
             return Ok("Updated!");
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}")] //funksionon
         public IActionResult DeleteTicket(int id)
         {
             var success = _ticketService.DeleteTicket(id);
