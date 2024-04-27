@@ -73,5 +73,19 @@ namespace backend.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchEvents(string query)
+        {
+            try
+            {
+                var searchResult = await _eventService.SearchEvents(query);
+                return Ok(_mapper.Map<IEnumerable<EventResponse>>(searchResult));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }
