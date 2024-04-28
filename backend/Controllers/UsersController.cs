@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+﻿// Import necessary namespaces
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using backend.Entities;
 using backend.IServices;
 using backend.Models;
-using backend.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-//USERI KOMPLET OKAY INCLUDIN HASH EDHE TOKEN TEK LOGIN 
+
 namespace backend.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class UserController : ControllerBase
@@ -22,9 +23,7 @@ namespace backend.Controllers
         {
             _userService = userService;
             _mapper = mapper;
-             
-
-         }
+        }
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
@@ -32,7 +31,7 @@ namespace backend.Controllers
         {
             var user = await _userService.AuthenticateUser(loginRequest);
             if (user == null)
-                return BadRequest(new { message = "Email or password is incorrect" });
+                return Unauthorized(new { message = "Incorrect email or password." });
 
             return Ok(user);
         }
@@ -45,7 +44,6 @@ namespace backend.Controllers
             return Ok(user);
         }
 
-        [AllowAnonymous]
         [HttpGet]
         public ActionResult<IEnumerable<UserResponse>> GetUsers()
         {
@@ -57,41 +55,47 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                
-                return StatusCode(500, "An error occurred while retrieving users.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving users.");
             }
         }
-        [AllowAnonymous]
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserResponse>> GetUserById(int userId)
+        public async Task<ActionResult<UserResponse>> GetUserById(int id)
         {
-            var user = await _userService.GetUserById(userId);
-            var userResponseDto = _mapper.Map<UserResponse>(user);
+            if (id <= 0)
+                return BadRequest("Invalid user ID.");
+
+            var user = await _userService.GetUserById(id);
             if (user == null)
-                return NotFound("User not found!");
-            return Ok(user); 
+                return NotFound("User not found.");
+
+            return Ok(user);
         }
 
-        [AllowAnonymous]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateUserDto userDto)
         {
+            if (id <= 0)
+                return BadRequest("Invalid user ID.");
+
             var updatedUser = await _userService.UpdateUser(id, userDto);
             if (updatedUser == null)
-                return NotFound("Failed!");
+                return NotFound("User not found.");
 
             return Ok(updatedUser);
         }
 
-        [AllowAnonymous]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
+            if (id <= 0)
+                return BadRequest("Invalid user ID.");
+
             var result = await _userService.DeleteUser(id);
             if (!result)
-                return NotFound("User not found");
+                return NotFound("User not found.");
 
-            return Ok("Deleted successfully!");
+            return Ok("User deleted successfully!");
         }
     }
 }
