@@ -31,6 +31,7 @@ namespace backend.Services   //funksionon komplet perveq put, a me leju me updat
         public IEnumerable<TicketResponse> GetAllTickets()
         {
             var tickets = _context.Tickets.ToList();
+
             return _mapper.Map<IEnumerable<TicketResponse>>(tickets);
         }
 

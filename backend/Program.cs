@@ -64,14 +64,22 @@ namespace backend
                 });
             // Jwt configuration ends here
 
-            builder.Services.AddCors(c =>
+            //builder.Services.AddCors(c =>
+            //{
+            //    c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin()
+            //    .AllowAnyMethod()
+            //    .AllowAnyHeader());
+            //});
+            builder.Services.AddCors(options =>
             {
-                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
+                options.AddPolicy("AllowSpecificOrigin",
+                    builder => builder.WithOrigins("http://localhost:5181")
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod());
             });
 
             var app = builder.Build();
+            app.UseCors("AllowSpecificOrigin");
 
             if (app.Environment.IsDevelopment())
             {
