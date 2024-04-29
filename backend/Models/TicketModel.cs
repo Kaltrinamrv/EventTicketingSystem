@@ -14,7 +14,7 @@ namespace backend.Models
     // DTO for updating a ticket
     public class UpdateTicketDto
     {
-        public int TicketID { get; set; } // Adding TicketID property
+        public int TicketID { get; set; } 
         public bool IsAvailable { get; set; }
         public string TicketType { get; set; }
         public decimal Price { get; set; }
