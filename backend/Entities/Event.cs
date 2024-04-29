@@ -5,11 +5,6 @@ namespace backend.Entities
 {
     public class Event
     {
-      //  public int OrderID { get; set; }
-        
-        //public int UserID { get; set; }
-
-        
         public int EventID { get; set; }
         public int TicketQuantity { get; set; }
         public decimal Price { get; set; }
