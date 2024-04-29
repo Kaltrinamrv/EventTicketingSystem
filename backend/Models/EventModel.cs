@@ -6,22 +6,14 @@ namespace backend.Models
     {
         [Required]
         public int TicketQuantity { get; set; }
-
         [Required]
         public decimal Price { get; set; }
-
-       
         public DateTime DateTime { get; set; }
-
         [Required]
         public string Name { get; set; }
-
         public string Description { get; set; }
-
         [Required]
-        public string Location { get; set; }
-
-       
+        public string Location { get; set; } 
         public string Organizer { get; set; }
     }
 
